@@ -489,7 +489,7 @@ void    *W_CacheLumpNum (int lump, int tag, converter_t converter, int numrec)
                 length=W_LumpLength(lump);
                 Z_Malloc (length+sizeof(word), tag, &lumpcache[lump]);
                 W_ReadLump (lump, lumpcache[lump]);
-                Debug("Invoking endian converter on %p, %i records.\n", lumpcache[lump], numrec);
+                DebugOut("Invoking endian converter on %p, %i records.\n", lumpcache[lump], numrec);
                 converter(lumpcache[lump], numrec);
 
                 *( (word *) ((byte *)lumpcache[lump]+length) ) = CalculateCRC (lumpcache[lump], length);
@@ -497,7 +497,7 @@ void    *W_CacheLumpNum (int lump, int tag, converter_t converter, int numrec)
 #else
                 Z_Malloc (W_LumpLength (lump), tag, &lumpcache[lump]);
                 W_ReadLump (lump, lumpcache[lump]);
-                Debug("Invoking endian converter on %p, %i records\n", lumpcache[lump], numrec);
+                DebugOut("Invoking endian converter on %p, %i records\n", lumpcache[lump], numrec);
                 converter(lumpcache[lump], numrec);
 #endif
         }

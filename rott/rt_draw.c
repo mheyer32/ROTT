@@ -762,7 +762,7 @@ int   CalcRotate (objtype *ob)
 	if ((ob->obclass >= p_bazookaobj) || (ob->obclass == missileobj))
 	  {angle = viewangle - ob->angle;
 		#if (0)
-		 Debug("\nviewangle: %d, angle: %d",viewangle,angle);
+		 DebugOut("\nviewangle: %d, angle: %d",viewangle,angle);
 		#endif
 	  }
 	else if ((ob->obclass > wallopobj) && (ob->obclass != b_darksnakeobj))
@@ -790,7 +790,7 @@ int   CalcRotate (objtype *ob)
 	if (ob->state->rotate == 16)
 	  {rotation = angle/(ANGLES/16);
 		#if (0)
-		 Debug("\nrotation: %d", rotation);
+		 DebugOut("\nrotation: %d", rotation);
 		#endif
 		return rotation;
 	  }

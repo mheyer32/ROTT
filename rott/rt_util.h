@@ -165,13 +165,11 @@ void  SoftwareError (char *error, ...) __attribute__((format(printf,1,2)));
 #if (DEBUG==1)
 
 void  DebugError (char *error, ...) __attribute__((format(printf,1,2)));
-#define Debug  DebugError
+#define DebugOut  DebugError
 
 #else
 
-void  DebugError (char *error, ...) __attribute__((format(printf,1,2)));
-#define Debug  DebugError
-//#define Debug
+#define DebugOut
 
 #endif
 

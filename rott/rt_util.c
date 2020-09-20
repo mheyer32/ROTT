@@ -1134,7 +1134,7 @@ long ParseNum (char *str)
 
 #if defined (AMIGA)
 
-__inline short SwapShort(short val)
+short SwapShort(short val)
 {
 	__asm __volatile
 	(
@@ -1147,7 +1147,7 @@ __inline short SwapShort(short val)
 	return val;
 }
 
-__inline int SwapLong(int val)
+int SwapLong(int val)
 {
 	__asm __volatile
 	(

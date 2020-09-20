@@ -29,12 +29,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  
 #include <signal.h>
 
-
-#include <exec/exec.h>
-#include <exec/execbase.h>  
+#include <proto/exec.h>
+#include <exec/execbase.h>
 #include <workbench/startup.h>
 #include <workbench/workbench.h>
-#include <workbench/icon.h>
+//#include <workbench/icon.h>
+#include <proto/icon.h>
+
 #include "rt_def.h"
 #include "lumpy.h"
 #include "watcom.h"
@@ -82,7 +83,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //MED
 #include "memcheck.h"
 #include "m_fixed.h"
- 
+
 int cpu_type;
 int broken_pipe;
 extern struct ExecBase *SysBase;
@@ -187,12 +188,12 @@ extern void RecordDemoQuery ( void );
     "LOMEM"    
   };
 
-int main (int argc, char *argv[])
+int __stdargs main (int argc, char *argv[])
 {
     struct WBStartup *argmsg;
     struct WBArg *wb_arg;
     struct DiskObject *obj;
-    char **toolarray, *s;
+    STRPTR *toolarray, *s;
 
     int i, p;
   
@@ -233,7 +234,7 @@ int main (int argc, char *argv[])
     }
     else
     {
-        printf ("\Overriding Icon tooltypes command line with :\n\n    ");
+        printf ("\nOverriding Icon tooltypes command line with :\n\n    ");
             for (i = 0; i < argc; i++)
               printf (" %s", argv[i]);
             printf ("\n\n");

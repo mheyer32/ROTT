@@ -131,13 +131,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     #ifndef _fstricmp
       #define _fstricmp(x, y) strcasecmp(x, y)
     #endif
-
-    char *strupr(char *);
-    char *itoa(int, char *, int);
-    char *ltoa(long, char *, int);
+    #ifndef __libnix__
+        char *strupr(char *);
+        char *ltoa(long, char *, int);
+    #endif
     char *ultoa(unsigned long, char *, int);
     char getch(void);
     long filelength(int handle);
+    __stdargs char *itoa(int, char *, int);
   #else
     #error please define for your platform.
   #endif
@@ -309,6 +310,19 @@ typedef unsigned char           byte;
 typedef unsigned short int      word;
 typedef unsigned int            longword;
 typedef int fixed;
+
+//THIS IS TAKEN FROM SDL_mixer, we should probably remove all references to it
+//since we use doomsound.library for audio
+/* The internal format for an audio chunk */
+typedef unsigned char           Uint8;
+typedef unsigned int            Uint32;
+
+typedef struct {
+    int allocated;
+    Uint8 *abuf;
+    Uint32 alen;
+    Uint8 volume;		/* Per-sample volume, 0-128 */
+} Mix_Chunk;
 
 
 //////////////////////////////////////////////////////////////////////////

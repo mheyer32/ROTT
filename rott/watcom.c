@@ -47,7 +47,7 @@ fixed FixedScale(fixed orig, fixed factor, fixed divisor)
 typedef int fixed_t;
 
 #ifndef C_FIXED_MATH
-__inline__ fixed_t FixedMul040(fixed_t eins,fixed_t zwei)
+fixed_t FixedMul040(fixed_t eins,fixed_t zwei)
 {
     __asm __volatile
 	("muls.l %1,%1:%0 \n\t"
@@ -61,7 +61,7 @@ __inline__ fixed_t FixedMul040(fixed_t eins,fixed_t zwei)
     return eins;
 }
 
-__inline__ fixed_t FixedMul060(fixed_t eins,fixed_t zwei) 
+fixed_t FixedMul060(fixed_t eins,fixed_t zwei)
 {
 	__asm __volatile
 	("fmove.l	%0,fp0 \n\t"
@@ -79,7 +79,7 @@ __inline__ fixed_t FixedMul060(fixed_t eins,fixed_t zwei)
 	return eins;
 }
  
-__inline__ fixed_t FixedDiv040(fixed_t eins,fixed_t zwei)
+fixed_t FixedDiv040(fixed_t eins,fixed_t zwei)
 {
 	__asm __volatile
 
@@ -110,7 +110,7 @@ __inline__ fixed_t FixedDiv040(fixed_t eins,fixed_t zwei)
 	return eins;
 }
 
-__inline fixed_t FixedDiv060(fixed_t eins,fixed_t zwei)
+fixed_t FixedDiv060(fixed_t eins,fixed_t zwei)
 {
 	__asm __volatile
 	("tst.l		%1\n\t"
@@ -140,7 +140,7 @@ __inline fixed_t FixedDiv060(fixed_t eins,fixed_t zwei)
 	return eins;
 }
 
-__inline int LongDiv(int eins,int zwei)
+int LongDiv(int eins,int zwei)
 {
 	__asm __volatile
 	(
@@ -153,7 +153,7 @@ __inline int LongDiv(int eins,int zwei)
 	return eins;
 }
 
-__inline int ULongDiv(int eins,int zwei)
+int ULongDiv(int eins,int zwei)
 {
 	__asm __volatile
 	(

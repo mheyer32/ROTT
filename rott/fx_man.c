@@ -27,11 +27,16 @@
  
 #include <proto/dos.h>
 #include <proto/graphics.h>
+#include <proto/exec.h>
+
+#include "isr.h"
 #include "rt_def.h"      // ROTT music hack
 #include "rt_cfg.h"      // ROTT music hack
-#include "rt_util.h"     // ROTT music hack
+//#include "rt_util.h"     // ROTT music hack
 #include "fx_man.h"
 #include "music.h"
+#include "w_wad.h"
+
 
 #include "doomsound.h"
 static struct Library *DoomSndBase = NULL;
@@ -651,8 +656,6 @@ int FX_SetFrequency(int handle, int frequency)
 static int setupVocPlayback(char *ptr, int size, int priority, unsigned long callbackval,
                             int *chan, Mix_Chunk **chunk)
 {
-    SDL_RWops *rw;
-
     *chan = grabMixerChannel(priority);
     if (*chan == -1)
     {
@@ -691,6 +694,8 @@ static int _FX_SetPosition(int chan, int angle, int distance)
     
     return status;
 }
+
+extern int SoundNumber ( int x ); // in rt_sound
 
 int FX_PlayVOC(char *ptr, int pitchoffset,
                int vol, int left, int right,
@@ -1130,9 +1135,7 @@ void MUSIC_SetLoopFlag(int loopflag)
 
 int MUSIC_SongPlaying(void)
 {
-    return(__FX_TRUE);
-    
-     
+    return Mus_Done(musicHandle) ? __FX_FALSE : __FX_TRUE;
 } // MUSIC_SongPlaying
 
 
@@ -1147,7 +1150,7 @@ void MUSIC_Continue(void)
 
 void MUSIC_Pause(void)
 {
-   Mus_Pause((int)musicHandle);
+   Mus_Pause(musicHandle);
 } // MUSIC_Pause
 
 

@@ -5802,12 +5802,12 @@ void CheckTemp2Codes(objtype *ob,playertype *pstate)
 				 break;
 
           case STEPUP:
-				 //Debug("\n\n heightoffset adjusted from %d to %d",
+				 //DebugOut("\n\n heightoffset adjusted from %d to %d",
 					//	 pstate->heightoffset,pstate->heightoffset - STEPADJUST);
 				 pstate->heightoffset -= STEPADJUST;
 				 if (pstate->heightoffset <= pstate->oldheightoffset)
 					{ob->temp2 = 0;
-					 //Debug("\n done adjusting heightoffset");
+					 //DebugOut("\n done adjusting heightoffset");
 					 pstate->heightoffset = pstate->oldheightoffset;
 					}
 				 break;

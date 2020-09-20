@@ -2504,8 +2504,8 @@ void SetupTeams(void)
              }
 
           badcount = 0;
-          //Debug("\n\nSpawn Location %d",rand);
-          //Debug("\n-----------------");
+          //DebugOut("\n\nSpawn Location %d",rand);
+          //DebugOut("\n-----------------");
           TEAM[cnt].tilex = sx;
           TEAM[cnt].tiley = sy;
           TEAM[cnt].dir = dir;
@@ -2524,7 +2524,7 @@ void SetupTeams(void)
 
           FindEmptyTile(&sx,&sy);
 
-         //Debug("\n x: %3d, y: %3d",sx,sy);
+         //DebugOut("\n x: %3d, y: %3d",sx,sy);
           SpawnPlayerobj(sx,sy,dir,j);
           }
 
@@ -2539,16 +2539,16 @@ void SetupTeams(void)
 #if ((DEVELOPMENT == 1))
 #if (TEAMTEST == 1)
 
-  Debug("Team Spawn Location\n");
-  Debug("-------------------\n");
+  DebugOut("Team Spawn Location\n");
+  DebugOut("-------------------\n");
   for(i=0;i<numteams;i++)
-    Debug("%d   %3d,%3d\n",i,TEAM[i].tilex,TEAM[i].tiley);
+    DebugOut("%d   %3d,%3d\n",i,TEAM[i].tilex,TEAM[i].tiley);
 
 
-  Debug("Player            Team          Location\n");
-  Debug("------            ----          --------\n");
+  DebugOut("Player            Team          Location\n");
+  DebugOut("------            ----          --------\n");
   for(i=0;i<numplayers;i++)
-    Debug("  %d             %d            %3d,%3d\n",i,PLAYERSTATE[i].team,PLAYER[i]->tilex,PLAYER[i]->tiley);
+    DebugOut("  %d             %d            %3d,%3d\n",i,PLAYERSTATE[i].team,PLAYER[i]->tilex,PLAYER[i]->tiley);
 
 //  Error("done");
 #endif
@@ -3223,7 +3223,7 @@ void SetupElevators (void)
   #if ((DEVELOPMENT == 1))
   #if ((ELEVATORTEST == 1))
 	 for(i=0;i<_numelevators;i++)
-		Debug("\nelevator %d door1 %2d, door2 %2d",i,ELEVATOR[i].door1,ELEVATOR[i].door2);
+		DebugOut("\nelevator %d door1 %2d, door2 %2d",i,ELEVATOR[i].door1,ELEVATOR[i].door2);
   #endif
   #endif
 }

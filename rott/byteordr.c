@@ -49,7 +49,7 @@ DEFINE_CONVERTER(cfont_t);
 
 void CvtNull(void *lmp, int num)
 {
-    Debug("No-op endian converter on %p.\n", lmp);
+    DebugOut("No-op endian converter on %p.\n", lmp);
 }
 
 // Returns converter for the designated type

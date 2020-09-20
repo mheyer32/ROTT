@@ -30,8 +30,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h> // usleep()
 
 #include <devices/timer.h>
+#include <proto/timer.h>
 #include <proto/exec.h>
  
 #include "i_timer.h"
@@ -39,7 +41,7 @@
 static ULONG basetime = 0;
 struct MsgPort *timer_msgport;
 struct timerequest *timer_ioreq;
-struct Library *TimerBase;
+struct Device *TimerBase;
 
 static int opentimer(ULONG unit){
 	timer_msgport = CreateMsgPort();

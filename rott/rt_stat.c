@@ -1863,14 +1863,14 @@ void DoSprites(void)
 
 
 #if (0)
-	 Debug("\n");
+	 DebugOut("\n");
 #endif
 i=0;
 for(temp = firstactivestat;temp;)
   {tempnext = temp->nextactive;
 
 	#if (0)
-	 Debug("\nid: %d, shapenum: %d, numanims: %d",i++,temp->shapenum,temp->numanims);
+	 DebugOut("\nid: %d, shapenum: %d, numanims: %d",i++,temp->shapenum,temp->numanims);
 	#endif
 
 	if ((temp->shapenum != NOTHING) && (temp->flags & FL_ACTIVE))

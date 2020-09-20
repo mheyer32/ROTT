@@ -48,11 +48,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <proto/keymap.h>
 #include <proto/lowlevel.h>
 
+#include <clib/alib_protos.h>
 #include <clib/commodities_protos.h> 
 #include <cybergraphx/cybergraphics.h> 
 #include <proto/cybergraphics.h>
- 
- 
+#include <proto/intuition.h>
+
 #include <stdlib.h>
 #include <sys/stat.h>
 
@@ -64,14 +65,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_view.h"
 #include "rt_in.h"
 #include "isr.h"
+
 #include "amiga_keysym.h"
+#include "amiga_median.h"
+
+extern int CheckParm (char *check);
+extern void Error (char *error, ...);
+
 static SDLKey MISC_keymap[256];
 void amiga_InitKeymap(void);
 static unsigned int scancodes[SDLK_LAST];
 // GLOBAL VARIABLES
 
 // Palette translation for Indivision GFX
-static byte ptranslate[128]=
+const __far static byte ptranslate[128]=
 {
 	0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,
 	0x70,0x71,0x72,0x73,0x74,0x75,0x76,0x77,0x78,0x79,0x7a,0x7b,0x7c,0x7d,0x7e,0x7f,
@@ -121,13 +128,14 @@ char        *bufofsTopLimit;
 char        *bufofsBottomLimit;
 
 void VH_UpdateScreen (void);
+
 #define REG(xn, parm) parm __asm(#xn)
 #define REGARGS __regargs
 #define STDARGS __stdargs
 #define SAVEDS __saveds
 #define ALIGNED __attribute__ ((aligned(4))
-#define FAR
-#define CHIP
+#define FAR __far
+#define CHIP __chip
 #define INLINE __inline__
  
 void REGARGS indivision_core(
@@ -300,7 +308,7 @@ void I_SetPalette (byte *palette)
             colorsAGA[0]=((256)<<16) ;
             colorsAGA[((256*3)+1)]=0x00000000;
 
-            LoadRGB32(&_hardwareScreen->ViewPort, &colorsAGA);
+            LoadRGB32(&_hardwareScreen->ViewPort, colorsAGA);
 
             break;
         case VideoModeINDIVISION:
@@ -332,7 +340,7 @@ void I_SetPalette (byte *palette)
                 median_cut (gpalette, &video_colourtable[1], video_xlate);
                 video_colourtable[33] = 0;
 
-                LoadRGB32(&_hardwareScreen->ViewPort, &video_colourtable);
+                LoadRGB32(&_hardwareScreen->ViewPort, video_colourtable);
 
             }
 
@@ -489,7 +497,7 @@ void GraphicsMode ( void )
             		SA_AutoScroll,	FALSE,
             		SA_Exclusive,	TRUE,
             		SA_Quiet,	TRUE,
-            		SA_BitMap,      &video_bitmap[0], /* custom bitmap, contiguous planes */
+                    SA_BitMap,      (Tag)&video_bitmap[0], /* custom bitmap, contiguous planes */
             		TAG_DONE,       0)) == NULL) 
 		{
         		Error ("OpenScreen() for Indivision GFX failed");
@@ -611,7 +619,7 @@ void GraphicsMode ( void )
                 			WA_Top, 0,
                 			WA_Width, 320,
                 			WA_Height, 200,
-                			WA_Title, NULL,
+                            WA_Title, (Tag)NULL,
         					SA_AutoScroll, FALSE,
                 			WA_CustomScreen, (ULONG)_hardwareScreen,
                 			WA_Backdrop, TRUE,
@@ -864,7 +872,7 @@ void I_FinishUpdate (void)
     else
     {
         video_bitmap_handle = LockBitMapTags (_hardwareScreen->ViewPort.RasInfo->BitMap,
-                                              LBMI_BASEADDRESS, &base_address,
+                                             LBMI_BASEADDRESS,(Tag)&base_address,
                                               TAG_DONE);
         if (video_bitmap_handle) {
             CopyMemQuick (screenpixels, base_address, 320 * 200);
@@ -1199,7 +1207,7 @@ ULONG amiga_TranslateKey(int code)
 		ie.ie_Class				= IECLASS_RAWKEY; 
 		ie.ie_Code				= code;  	 
        
-		actual = MapRawKey(&ie, &buffer, 8,  NULL);
+		actual = MapRawKey(&ie, buffer, 8,  NULL);
         
         
 		if (actual == 1)

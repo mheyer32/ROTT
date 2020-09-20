@@ -45,7 +45,9 @@ Ownership and copyright of all files remains with the author:
 
 #include <stdlib.h>
 #include <sys/stat.h>
+
 #include "modexlib.h"
+#include "rt_util.h"
 
 #define NBITS 4			/* for each r, g, b */
 #define NSIDE (1<<NBITS)

@@ -2003,7 +2003,7 @@ int myprintf
    char    *ptr;
    if (MONOPRESENT==false)
       {
-      Debug("%s", fmt);
+      DebugOut("%s", fmt);
       return 0;
       }
    va_start( argptr, fmt );

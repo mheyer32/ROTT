@@ -162,6 +162,8 @@ static char *ParmStrings[] = {"nojoys","nomouse","spaceball","cyberman","assassi
 // IN_PumpEvents () - Let platform process an event queue.
 //
 //******************************************************************************
+
+extern void doEvents (void);
 void IN_PumpEvents(void)
 {
     doEvents();

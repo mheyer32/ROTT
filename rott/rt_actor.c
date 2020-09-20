@@ -601,7 +601,7 @@ void SaveActors(byte **buffer,int*size)
 	  {tact = (objtype*)(temp->target);
 		if (tact->which == ACTOR)
 		  {dummy.targetindex = tact->whichactor;
-			Debug("\nsave actor %d, type %d has target %d",temp->whichactor,temp->obclass,tact->whichactor);
+			DebugOut("\nsave actor %d, type %d has target %d",temp->whichactor,temp->obclass,tact->whichactor);
 		  }
 		else if (tact->which == SPRITE)
 		  {statobj_t *tstat;
@@ -720,7 +720,7 @@ void LoadActors(byte *buffer,int size)
       else
          {
          targetindices[i] = dummy.targetindex+1;
-         Debug("\nload actor %d, type %d has target %d",i,new->obclass,dummy.targetindex);
+         DebugOut("\nload actor %d, type %d has target %d",i,new->obclass,dummy.targetindex);
          }
 
 
@@ -834,9 +834,9 @@ void MakeActive(objtype *ob)
   #if ((DEVELOPMENT == 1))
   #if ((LOADSAVETEST == 1))
   if (!lastactive)
-	Debug("\nlastactive = NULL !");
+	DebugOut("\nlastactive = NULL !");
   else
-	Debug("\nlastactive = %8x",lastactive);
+	DebugOut("\nlastactive = %8x",lastactive);
 
   #endif
   #endif
@@ -2986,15 +2986,15 @@ void T_CrushUp(objtype*ob)
   dist = ACTORSIZE+0x2000;
   if (ob->state->condition & SF_UP)
 	 {ob->temp1 += 4;
- //	  Debug("\ncol momz = 4");
+ //	  DebugOut("\ncol momz = 4");
 	 }
   else if (ob->state->condition & SF_DOWN)
 	 {ob->temp1 -= 4;
- //      Debug("\ncol mom z = -4");
+ //      DebugOut("\ncol mom z = -4");
 	 }
   else
 	 {//ob->momentumz = 0;
-  //	  Debug("\ncol mom z = 0");
+  //	  DebugOut("\ncol mom z = 0");
 	 }
 
   ob->temp2 = maxheight - ob->temp1 + 32;
@@ -3221,7 +3221,7 @@ void T_Explosion(objtype* ob)
             check->flags |= FL_HBM;
 
          GetMomenta(check,ob,&momx,&momy,&momz,impulse);
-            //Debug("\nhitmomx = %d, hitmomy = %d",momx,momy);
+            //DebugOut("\nhitmomx = %d, hitmomy = %d",momx,momy);
 
         /*if (M_ISACTOR(owner) &&
             (owner->obclass == playerobj) &&
@@ -6513,7 +6513,7 @@ movement_status CheckOtherActors(objtype*ob,int tryx,int tryy,int tryz)
                   listrover->whatever = ob;
                   }
 
-               //Debug("\nplayerz %d, tryz %d momz zeroed at %d, clearances %d and %d",
+               //DebugOut("\nplayerz %d, tryz %d momz zeroed at %d, clearances %d and %d",
                   //   ob->z,tryz,listrover->z-64 + (listrover->momentumz >> 16),dzt,dztp1);
 
                }
@@ -7921,12 +7921,12 @@ void T_EsauRise(objtype*ob)
    // return;
 
    if (!ob->ticcount)
-      {//Debug("\n tx before: %d, ty before: %d",
+      {//DebugOut("\n tx before: %d, ty before: %d",
          //         ob->targettilex,ob->targettiley);
 
       SelectTouchDir(ob);
       if (ob->targettilex || ob->targettiley)
-         {//Debug("\n ob->tilex: %d, ob->tiley: %d, targettilex: %d, targettiley: %d",
+         {//DebugOut("\n ob->tilex: %d, ob->tiley: %d, targettilex: %d, targettiley: %d",
             //         ob->tilex, ob->tiley, ob->targettilex, ob->targettiley);
 
          SetTilePosition(ob,ob->targettilex,ob->targettiley);
@@ -8698,9 +8698,9 @@ void SelectKristChaseDir(objtype*ob)
 		//int leftangle1,leftangle2;
 
 		if (CheckLine(ob,&dummy,DIRCHECK))
-		  {//Debug("\ntrying straight dir %d",straight);
+		  {//DebugOut("\ntrying straight dir %d",straight);
 			M_CHECKTURN(ob,straight);
-			//Debug("\nstraight dir %d failed",straight);
+			//DebugOut("\nstraight dir %d failed",straight);
 		  }
 		//leftdir = dirorder[straight][PREV];
 		//leftangle1 = dirangle8[leftdir];
@@ -8718,15 +8718,15 @@ void SelectKristChaseDir(objtype*ob)
 		//newpos2.z = ob->z;
 		//if (CheckLine(&newpos1,&dummy,SHOOT))// || CheckLine(&newpos2,&dummy,SHOOT))
 			{for(tdir = dirorder[straight][PREV];tdir != dirorder[straight][NEXT];tdir = dirorder[tdir][PREV])
-				{//Debug("\ntried left-hand rule dir %d",tdir);
+				{//DebugOut("\ntried left-hand rule dir %d",tdir);
 				 M_CHECKTURN(ob,tdir);
 				}
 			}
 		//else
 		  //{for(tdir = dirorder[straight][NEXT];tdir != dirorder[straight][PREV];tdir = dirorder[tdir][NEXT])
-			 // {//Debug("\ntrying right-hand rule dir %d",tdir);
+			 // {//DebugOut("\ntrying right-hand rule dir %d",tdir);
 			 //	M_CHECKTURN(ob,tdir);
-				//Debug("\nright-hand rule dir %d failed\n",tdir);
+				//DebugOut("\nright-hand rule dir %d failed\n",tdir);
 		  //	  }
 		 // }
 	  }
@@ -9174,10 +9174,10 @@ findplayer:
       if ((head->dir == (unsigned)tdir) && (ob->dir == (unsigned)tdir)) // increment
       // tried dir if robot will attempt to move at tdir =>
       // head and body are at move try dir
-         {//Debug("\ntrying next queue dir %d",tdir);
+         {//DebugOut("\ntrying next queue dir %d",tdir);
          MISCVARS->NMEdirstried ++;
          if (MISCVARS->NMEdirstried == MISCVARS->NMEqueuesize) //gone through all queue entries
-            {//Debug("\nqueue exhausted");
+            {//DebugOut("\nqueue exhausted");
             ob->temp1 = -1;
             MISCVARS->NMEdirstried = 0;
             goto findplayer;
@@ -9196,7 +9196,7 @@ findplayer:
          head->dir = prevdir;
       return;
       }
-   //Debug("\nhead aligned to dir %d",tdir);
+   //DebugOut("\nhead aligned to dir %d",tdir);
 
    //oddir = ob->dir;
    if (ob->dir != head->dir)   // align body and wheels with head
@@ -9213,25 +9213,25 @@ findplayer:
       return;
       }
 
-   // Debug("\nbody aligned to head at dir %d",ob->dir);
+   // DebugOut("\nbody aligned to head at dir %d",ob->dir);
 
    ZEROMOM;
    ParseMomentum(ob,dirangle16[head->dir]);
-   // Debug("\ntrying to move at dir %d",head->dir);
+   // DebugOut("\ntrying to move at dir %d",head->dir);
    ActorMovement(ob);
    UpdateNMELinkedActors(ob);
 
    if (ob->momentumx || ob->momentumy)
       {
       NewState(wheels,&s_NMEwheels2); // align wheels for movement
-      //Debug("\nmove at dir %d succesful, resetting queue",head->dir);
+      //DebugOut("\nmove at dir %d succesful, resetting queue",head->dir);
       ob->temp1 = -1; //clear direction queue
       return;
       }
    else if (ob->temp1 == -1) // if queue is empty
                            //make a queue of directions (byte packed)
       {
-      //Debug("\nmove at dir %d failed and queue empty",head->dir);
+      //DebugOut("\nmove at dir %d failed and queue empty",head->dir);
       ob->temp1 = 0;
       MISCVARS->NMEdirstried = 0;
       MISCVARS->NMEqueuesize = 0;
@@ -9468,7 +9468,7 @@ void T_NME_Attack(objtype*ob)
   if (!CheckLine(ob,PLAYER[0],SIGHT))
 	{//ob->temp3 = 0;
     //#if ((DEVELOPMENT == 1))
-	 //Debug("\nCheckLine failed in NME Attack");
+	 //DebugOut("\nCheckLine failed in NME Attack");
 	 //#endif
 	 NewState(ob,&s_NMEchase);
 	 NewState((objtype*)(ob->target),&s_NMEwheels2);
@@ -9680,13 +9680,13 @@ void T_GenericMove(objtype*ob)
 		  //ob->tilex = ob->x >> TILESHIFT;
 		  //ob->tiley = ob->y >> TILESHIFT;
         //#if ((DEVELOPMENT == 1))
-		  //	Debug("\nfollower %d being moved to targetx %4x and targety %4x",
+		  //	DebugOut("\nfollower %d being moved to targetx %4x and targety %4x",
 		//	  ob-SNAKEHEAD,ob->x,ob->y);
 		 // #endif
 		  ob->targettilex = ob->temp1;
 		  ob->targettiley = ob->temp2;
 		  #if (0)
-			Debug("\nfollower %d's new targetx %4x, targety %4x",
+			DebugOut("\nfollower %d's new targetx %4x, targety %4x",
 			 ob-SNAKEHEAD,ob->temp1,ob->temp2);
 		  #endif
 		  ob->angle = atan2_appx(dx,dy);
@@ -12419,7 +12419,7 @@ void SelectPathDir (objtype *ob)
 			 passenger->tiley = passenger->y >> 16;
 			}*/
 //		 if (ob==SNAKEHEAD)
-//		  Debug("\n path changed at %d, %d",
+//		  DebugOut("\n path changed at %d, %d",
 //			ob->tilex,ob->tiley);
          }
       }
@@ -12738,7 +12738,7 @@ boolean CheckLine (void *from, void *to, int condition)
 	if ((yzangle>MAXYZANGLE) && (yzangle<FINEANGLES-MAXYZANGLE))
 	  {
 		#if (0)
-		 Debug("\nfailed from yzangle");
+		 DebugOut("\nfailed from yzangle");
 		#endif
 		return false;
 	  }

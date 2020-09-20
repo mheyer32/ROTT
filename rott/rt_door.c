@@ -347,25 +347,25 @@ void SaveTouchPlates(byte ** buffer,int *size)
 
  #if ((DEVELOPMENT == 1))
  #if (LOADSAVETEST == 1)
-	Debug("\n\nSAVE INFO\n");
-	Debug("---------");
+	DebugOut("\n\nSAVE INFO\n");
+	DebugOut("---------");
 
-	Debug("\n\nTOUCHINDICES\n");
-	Debug("------------\n\n");
+	DebugOut("\n\nTOUCHINDICES\n");
+	DebugOut("------------\n\n");
 	for(i=0;i<MAPSIZE;i++)
 	 for(j=0;j< MAPSIZE;j++)
 		if (touchindices[i][j])
-		  Debug("\ntouchindices[%3d][%3d]: %d",i,j,touchindices[i][j]);
+		  DebugOut("\ntouchindices[%3d][%3d]: %d",i,j,touchindices[i][j]);
 
-	Debug("\n\nTRIGGER: ");
+	DebugOut("\n\nTRIGGER: ");
 	for(i=0;i<(sizeof(TRIGGER)/sizeof(TRIGGER[0]));i++)
 	  if (TRIGGER[i])
-		 Debug("%1d",TRIGGER[i]);
-	Debug("\n\nNUMACTIONS PER TOUCHPLATE\n");
-	Debug("-------------------------\n\n");
+		 DebugOut("%1d",TRIGGER[i]);
+	DebugOut("\n\nNUMACTIONS PER TOUCHPLATE\n");
+	DebugOut("-------------------------\n\n");
 	for(i=0;i<(sizeof(numactions)/sizeof(numactions[0]));i++)
 	  if (numactions[i])
-	  Debug("\n %2d: %2d",i,numactions[i]);
+	  DebugOut("\n %2d: %2d",i,numactions[i]);
  #endif
  #endif
 
@@ -373,8 +373,8 @@ void SaveTouchPlates(byte ** buffer,int *size)
 	 {
     #if ((DEVELOPMENT == 1))
     #if (LOADSAVETEST == 1)
-	  Debug("\n\nTOUCHPLATE[%2d]\n",i);
-	  Debug("--------------\n\n");
+	  DebugOut("\n\nTOUCHPLATE[%2d]\n",i);
+	  DebugOut("--------------\n\n");
 	 #endif
 	 #endif
 
@@ -417,21 +417,21 @@ void SaveTouchPlates(byte ** buffer,int *size)
 
        #if ((DEVELOPMENT == 1))
        #if (LOADSAVETEST == 1)
-		  Debug("action node %d: tictime: %d, ticcount: %d ",k,dummy.tictime,dummy.ticcount);
+		  DebugOut("action node %d: tictime: %d, ticcount: %d ",k,dummy.tictime,dummy.ticcount);
 		  if (dummy.actionindex == -1)
-			 Debug("action: -1,");
+			 DebugOut("action: -1,");
 		  else
-			 Debug("action: %13s,",touchstrings[dummy.actionindex]);
+			 DebugOut("action: %13s,",touchstrings[dummy.actionindex]);
 
 		  if (dummy.swapactionindex == -1)
-			 Debug("swapaction: -1,");
+			 DebugOut("swapaction: -1,");
 		  else
-			 Debug("swapaction: %13s,",touchstrings[dummy.swapactionindex]);
+			 DebugOut("swapaction: %13s,",touchstrings[dummy.swapactionindex]);
 
 		  if (dummy.whichobj & FL_TACT)
-			 Debug("whichobj (actor): %4x\n",(dummy.whichobj & ~FL_TACT));
+			 DebugOut("whichobj (actor): %4x\n",(dummy.whichobj & ~FL_TACT));
 		  else
-			 Debug("whichobj (nonactor): %4x\n",dummy.whichobj);
+			 DebugOut("whichobj (nonactor): %4x\n",dummy.whichobj);
 		 #endif
 		 #endif
 
@@ -527,45 +527,45 @@ void LoadTouchPlates(byte * buffer, int size)
 
  #if ((DEVELOPMENT == 1))
  #if (LOADSAVETEST == 1)
-	Debug("\n\nLOAD INFO\n");
-	Debug("---------");
+	DebugOut("\n\nLOAD INFO\n");
+	DebugOut("---------");
 
-	Debug("\n\nTOUCHINDICES\n");
-	Debug("------------\n\n");
+	DebugOut("\n\nTOUCHINDICES\n");
+	DebugOut("------------\n\n");
 	for(i=0;i<MAPSIZE;i++)
 	 for(j=0;j< MAPSIZE;j++)
 		if (touchindices[i][j])
-		  Debug("\ntouchindices[%3d][%3d]: %d",i,j,touchindices[i][j]);
+		  DebugOut("\ntouchindices[%3d][%3d]: %d",i,j,touchindices[i][j]);
 
-	Debug("\n\nTRIGGER: ");
+	DebugOut("\n\nTRIGGER: ");
 	for(i=0;i<(sizeof(TRIGGER)/sizeof(TRIGGER[0]));i++)
 	  if (TRIGGER[i])
-		  Debug("%1d",TRIGGER[i]);
-	Debug("\n\nNUMACTIONS PER TOUCHPLATE\n");
-	Debug("-------------------------\n\n");
+		  DebugOut("%1d",TRIGGER[i]);
+	DebugOut("\n\nNUMACTIONS PER TOUCHPLATE\n");
+	DebugOut("-------------------------\n\n");
 	for(i=0;i<(sizeof(numactions)/sizeof(numactions[0]));i++)
 	  if (numactions[i])
-	  Debug("\n %2d: %2d",i,numactions[i]);
+	  DebugOut("\n %2d: %2d",i,numactions[i]);
 
 	for(i=0;i<lasttouch;i++)
 	  {
-	  Debug("\n\nTOUCHPLATE[%2d]\n",i);
-	  Debug("--------------\n\n");
+	  DebugOut("\n\nTOUCHPLATE[%2d]\n",i);
+	  DebugOut("--------------\n\n");
 
 	  for(k=0,temp=touchplate[i];temp;k++,temp = temp->nextaction)
 		  {
-		  Debug("action node %d: tictime: %d, ticcount: %d ",k,temp->tictime,temp->ticcount);
+		  DebugOut("action node %d: tictime: %d, ticcount: %d ",k,temp->tictime,temp->ticcount);
 		  if (!temp->action)
-			 Debug("action: NULL,");
+			 DebugOut("action: NULL,");
 		  else
-			 Debug("action: %13s,",touchstrings[GetIndexForAction(temp->action)]);
+			 DebugOut("action: %13s,",touchstrings[GetIndexForAction(temp->action)]);
 
 		  if (!temp->swapaction)
-			 Debug("swapaction: NULL,");
+			 DebugOut("swapaction: NULL,");
 		  else
-			 Debug("swapaction: %13s,",touchstrings[GetIndexForAction(temp->swapaction)]);
+			 DebugOut("swapaction: %13s,",touchstrings[GetIndexForAction(temp->swapaction)]);
 
-		  Debug("whichobj: %4x\n",(int)temp->whichobj);
+		  DebugOut("whichobj: %4x\n",(int)temp->whichobj);
 		  }
 	  }
  #endif
@@ -3045,7 +3045,7 @@ void OperateElevatorDoor(int dnum)
 			//eptr->doortoopen = eptr->door1;
          #if (DEVELOPMENT == 1)
          #if (ELEVATORTEST == 1)
-			Debug("\nplayer at source requesting elev %d mtd",dptr->eindex);
+			DebugOut("\nplayer at source requesting elev %d mtd",dptr->eindex);
 			#endif
 			#endif
 		  }
@@ -3057,7 +3057,7 @@ void OperateElevatorDoor(int dnum)
 			//eptr->doortoopen = eptr->door2;
          #if (DEVELOPMENT == 1)
          #if (ELEVATORTEST == 1)
-			Debug("\nplayer at dest requesting elev %d mts",dptr->eindex);
+			DebugOut("\nplayer at dest requesting elev %d mts",dptr->eindex);
 			#endif
 			#endif
 		  }
@@ -3069,7 +3069,7 @@ void OperateElevatorDoor(int dnum)
 			{
          #if (DEVELOPMENT == 1)
          #if (ELEVATORTEST == 1)
-			Debug("\nplayer at source requesting elev %d rad",dptr->eindex);
+			DebugOut("\nplayer at source requesting elev %d rad",dptr->eindex);
 			#endif
 			#endif
 												// start moving to current loc;
@@ -3083,7 +3083,7 @@ void OperateElevatorDoor(int dnum)
 			{
          #if (DEVELOPMENT == 1)
          #if (ELEVATORTEST == 1)
-			 Debug("\nplayer at dest requesting elev %d ras",dptr->eindex);
+			 DebugOut("\nplayer at dest requesting elev %d ras",dptr->eindex);
 			#endif
 			#endif
 			 SetNextAction(eptr,1);
@@ -3104,7 +3104,7 @@ void OperateElevatorDoor(int dnum)
 			  {
             #if ((DEVELOPMENT == 1))
             #if ((ELEVATORTEST == 1))
-				Debug("\nplayer at source requesting elev %d dc",dptr->eindex);
+				DebugOut("\nplayer at source requesting elev %d dc",dptr->eindex);
 				#endif
 				#endif
 				SetNextAction(eptr,0);
@@ -3114,7 +3114,7 @@ void OperateElevatorDoor(int dnum)
 			  {
             #if ((DEVELOPMENT == 1))
             #if ((ELEVATORTEST == 1))
-				Debug("\nplayer at dest requesting elev %d dc",dptr->eindex);
+				DebugOut("\nplayer at dest requesting elev %d dc",dptr->eindex);
 				#endif
 				#endif
 				SetNextAction(eptr,1);
@@ -3151,7 +3151,7 @@ int SetNextAction(elevator_t*eptr,int action)
  eptr->doorclosing = dn;
  #if (DEVELOPMENT == 1)
  #if (ELEVATORTEST == 1)
-	Debug("\nCloseDoor %d",dn);
+	DebugOut("\nCloseDoor %d",dn);
  #endif
  #endif
  if (doorobjlist[dn]->action != dr_closed)
@@ -3173,7 +3173,7 @@ void OperateElevatorSwitch(objtype*ob,int elevnum,int checkx,int checky)
 	{
     #if (DEVELOPMENT == 1)
     #if (ELEVATORTEST == 1)
-	 Debug("\nobj %d tried to use elevator %d switch while in use",ob->obclass,elevnum);
+	 DebugOut("\nobj %d tried to use elevator %d switch while in use",ob->obclass,elevnum);
 	 #endif
 	 #endif
 	 return;
@@ -3188,7 +3188,7 @@ void OperateElevatorSwitch(objtype*ob,int elevnum,int checkx,int checky)
 		return;
     #if (DEVELOPMENT == 1)
     #if (ELEVATORTEST == 1)
-	 Debug("\nswitch at src %d flipped",elevnum);
+	 DebugOut("\nswitch at src %d flipped",elevnum);
 	 #endif
 	 #endif
 	 eptr->ticcount = 0;
@@ -3198,7 +3198,7 @@ void OperateElevatorSwitch(objtype*ob,int elevnum,int checkx,int checky)
 		return;
     #if (DEVELOPMENT == 1)
     #if (ELEVATORTEST == 1)
-	 Debug("\nswitch at dest %d flipped",elevnum);
+	 DebugOut("\nswitch at dest %d flipped",elevnum);
 	 #endif
 	 #endif
 	 eptr->ticcount = 0;

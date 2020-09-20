@@ -45,6 +45,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "profile.h"
 #include "develop.h"
 #include "rt_main.h"
+#include "i_timer.h"
 
 #if (DEVELOPMENT == 1)
 
