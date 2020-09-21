@@ -77,7 +77,7 @@ static int initialized_debugging = 0;
 static int maxReverbDelay = 256;
 static int mixerIsStereo = 1;
 static duke_channel_info *chaninfo = NULL;
-static int musicHandle = -1;
+static int musicHandle = 0;
 
 #define HandleOffset       0
 
@@ -408,7 +408,7 @@ int FX_Init(int SoundCard, int numvoices, int numchannels,
  
 
     numChannels = 16;
-    blocksize = sizeof (duke_channel_info) * numvoices;
+    blocksize = sizeof (duke_channel_info) * numChannels;
     chaninfo = malloc(blocksize);
     if (chaninfo == NULL)  // uhoh.
     {
@@ -1164,9 +1164,9 @@ int MUSIC_StopSong(void)
 
     if (musicHandle)
     {
-        Mus_Unregister(musicHandle);
         Mus_Stop(musicHandle);
-       
+        Mus_Unregister(musicHandle);
+        musicHandle = 0;
     }
     
     return(MUSIC_Ok);
