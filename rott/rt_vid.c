@@ -60,7 +60,6 @@ unsigned mapwidthtable[64];
 unsigned uwidthtable[UPDATEHIGH];
 unsigned blockstarts[UPDATEWIDE*UPDATEHIGH];
 byte     update[UPDATESIZE];
-byte     palette1[256][3], palette2[256][3];
 boolean  screenfaded;
 
 
@@ -73,7 +72,7 @@ boolean  screenfaded;
 static byte  pixmasks[4] = {1,2,4,8};
 static byte  leftmasks[4] = {15,14,12,8};
 static byte  rightmasks[4] = {1,3,7,15};
-
+static byte  palette1[768], palette2[768];
 
 
 //******************************************************************************
@@ -870,7 +869,7 @@ void VL_FadeOut (int start, int end, int red, int green, int blue, int steps)
       return;
 
    WaitVBL ();
-   VL_GetPalette (&palette1[0][0]);
+   VL_GetPalette (palette1);
    memcpy (palette2, palette1, 768);
 
 //
@@ -878,8 +877,8 @@ void VL_FadeOut (int start, int end, int red, int green, int blue, int steps)
 //
    for (i = 0; i < steps; i++)
    {
-      origptr = &palette1[start][0];
-      newptr = &palette2[start][0];
+      origptr = &palette1[start *3];
+      newptr = &palette2[start *3];
 
       for (j = start; j <= end; j++)
       {
@@ -895,7 +894,7 @@ void VL_FadeOut (int start, int end, int red, int green, int blue, int steps)
       }
 
       WaitVBL ();
-      VL_SetPalette (&palette2[0][0]);
+      VL_SetPalette (palette2);
    }
 
 //
@@ -927,7 +926,7 @@ void VL_FadeToColor (int time, int red, int green, int blue)
       return;
 
    WaitVBL ();
-   VL_GetPalette (&palette1[0][0]);
+   VL_GetPalette (palette1);
    memcpy (palette2, palette1, 768);
 
    dmax=(maxshade<<16)/time;
@@ -937,8 +936,8 @@ void VL_FadeToColor (int time, int red, int green, int blue)
 //
    for (i = 0; i < time; i+=tics)
    {
-      origptr = &palette1[0][0];
-      newptr = &palette2[0][0];
+      origptr = palette1;
+      newptr = palette2;
 
       for (j = 0; j <= 255; j++)
       {
@@ -956,7 +955,7 @@ void VL_FadeToColor (int time, int red, int green, int blue)
       maxshade=(dmax*(time-i))>>16;
       minshade=(dmin*(time-i))>>16;
       WaitVBL ();
-      VL_SetPalette (&palette2[0][0]);
+      VL_SetPalette (palette2);
       ThreeDRefresh();
       CalcTics();
 
@@ -986,9 +985,9 @@ void VL_FadeIn (int start, int end, byte *palette, int steps)
    int      i,j,delta;
 
    WaitVBL ();
-   VL_GetPalette (&palette1[0][0]);
+   VL_GetPalette (palette1);
 
-   memcpy (&palette2[0][0], &palette1[0][0], sizeof(palette1));
+   memcpy (palette2, palette1, sizeof(palette1));
 
    start *= 3;
    end = end*3+2;
@@ -1000,12 +999,12 @@ void VL_FadeIn (int start, int end, byte *palette, int steps)
    {
       for (j=start;j<=end;j++)
       {
-         delta = palette[j]-palette1[0][j];
-         palette2[0][j] = palette1[0][j] + delta * i / steps;
+         delta = palette[j]-palette1[j];
+         palette2[j] = palette1[j] + delta * i / steps;
       }
 
       WaitVBL ();
-      VL_SetPalette (&palette2[0][0]);
+      VL_SetPalette (palette2);
    }
 
 //
