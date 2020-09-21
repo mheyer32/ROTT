@@ -133,12 +133,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     #endif
     #ifndef __libnix__
         char *strupr(char *);
-        char *ltoa(long, char *, int);
     #endif
+    __stdargs char *itoa(int, char *, int);
+    __stdargs char *ltoa(long, char *, int);
     char *ultoa(unsigned long, char *, int);
     char getch(void);
     long filelength(int handle);
-    __stdargs char *itoa(int, char *, int);
   #else
     #error please define for your platform.
   #endif

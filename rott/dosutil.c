@@ -63,23 +63,6 @@ char *strupr(char *s)
 	return s;
 }
 
-char *ltoa(long value, char *string, int radix)
-{
-    switch (radix) {
-    case 10:
-        sprintf(string, "%ld", value);
-        break;
-    case 16:
-        sprintf(string, "%lx", value);
-        break;
-    default:
-        STUB_FUNCTION;
-        break;
-    }
-
-    return string;
-}
-
 #endif // __libnix__
 
 __stdargs char *itoa(int value, char *string, int radix)
@@ -90,6 +73,23 @@ __stdargs char *itoa(int value, char *string, int radix)
         break;
     case 16:
         sprintf(string, "%x", value);
+        break;
+    default:
+        STUB_FUNCTION;
+        break;
+    }
+
+    return string;
+}
+
+__stdargs char *ltoa(long value, char *string, int radix)
+{
+    switch (radix) {
+    case 10:
+        sprintf(string, "%ld", value);
+        break;
+    case 16:
+        sprintf(string, "%lx", value);
         break;
     default:
         STUB_FUNCTION;
