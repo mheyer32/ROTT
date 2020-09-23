@@ -70,7 +70,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "amiga_median.h"
 
 extern int CheckParm (char *check);
+#ifndef NDEBUG
 extern void Error (char *error, ...);
+#else
+#define Error(...)
+#endif
 
 static SDLKey MISC_keymap[256];
 void amiga_InitKeymap(void);

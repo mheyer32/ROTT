@@ -316,6 +316,7 @@ void ClearBuffer( char * buf, int size )
 =================
 */
 
+#ifndef NDEBUG
 void Error (char *error, ...)
 {
    char msgbuf[300];
@@ -425,7 +426,9 @@ void Error (char *error, ...)
    exit (1);
 }
 
-//#if (SOFTERROR==1)
+#endif //NDEBUG
+
+#if (SOFTERROR==1)
 
 /*
 =================
@@ -445,10 +448,10 @@ void SoftwareError (char *error, ...)
 	va_end (argptr);
 }
 
-//#endif
+#endif
 
 
-//#if (DEBUG == 1)
+#if (DEBUG == 1)
 
 /*
 =================
@@ -468,7 +471,7 @@ void DebugError (char *error, ...)
 	va_end (argptr);
 }
 
-//#endif
+#endif
 
 /*
 =================
