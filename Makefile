@@ -8,6 +8,7 @@ DEBUG ?= 0
 BINDIR ?= bin
 USEIXEMUL ?= 1
 PROFILE  ?= 0
+LTO ?= 0
 
 CC := m68k-amigaos-gcc
 STRIP := m68k-amigaos-strip
@@ -24,6 +25,11 @@ LDFLAGS = -noixemul -s -msmall-code
 #Always	provide symbols, will be stripped away  for target executable
 CFLAGS += -g -ggdb
 LDFLAGS += -g -ggdb
+
+ifeq ($(LTO), 1)
+	CFLAGS += -flto
+	LDFLAGS += -flto
+endif
 
 ifeq ($(DEBUG), 1)
 	CFLAGS += -DDEBUG=1 -Og -ffast-math -fno-omit-frame-pointer
