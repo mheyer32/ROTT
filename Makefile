@@ -137,4 +137,8 @@ ROTT.exe: $(OBJ_FILES) | Makefile
 $(OBJ_FILES): % : | Makefile
 	$(CC) $(CFLAGS) -c $< -o $@
 
+profile:
+	m68k-amigaos-gprof --brief ./ROTT.exe $(BINDIR)/gmon.out | gprof2dot.py | dot -s -Tpdf -oROTT.pdf
+
+
 
