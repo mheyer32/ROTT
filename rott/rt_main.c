@@ -259,9 +259,11 @@ int __stdargs main (int argc, char *argv[])
         cpu_type = 68010;
     else
         cpu_type = 68000;
+
+    boolean have_fpu =  !!(SysBase->AttnFlags & AFF_68881);
  
-#if !defined C_FIXED_MATH 
-    if (cpu_type >= 68060)
+#if !defined C_FIXED_MATH
+    if (cpu_type >= 68060 && have_fpu)
     {
     	__asm
     	(
