@@ -1004,7 +1004,8 @@ void GetPathFromEnvironment( char *fullname, const char *envname, const char *fi
    if ( path != NULL )
       {
       strcpy( fullname, path );
-      if ( fullname[ strlen( fullname ) - 1 ] != PATH_SEP_CHAR )
+      char lastChar = fullname[ strlen( fullname ) - 1 ];
+      if ( lastChar != PATH_SEP_CHAR && lastChar != ':')
          {
          strcat( fullname, PATH_SEP_STR );
          }

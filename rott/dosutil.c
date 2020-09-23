@@ -126,8 +126,8 @@ char getch(void)
 extern char ApogeePath[256];
 
 int setup_homedir (void)
-{        
-    snprintf (ApogeePath, sizeof (ApogeePath), "");
+{
+    snprintf (ApogeePath, sizeof (ApogeePath), "PROGDIR:");
 	return 0;
 }
 

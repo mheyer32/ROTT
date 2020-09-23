@@ -152,9 +152,9 @@ int     viewsize         = 7;
 MacroList CommbatMacros[MAXMACROS];
 
 #ifdef DOS
-char *ApogeePath = "APOGEECD";
+char ApogeePath[256] = "APOGEECD";
 #else
-char *ApogeePath = NULL;
+char ApogeePath[256];
 #endif
 
 //******************************************************************************

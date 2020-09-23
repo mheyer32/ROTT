@@ -63,9 +63,9 @@ extern int     fandc;
 extern int     blanktime;
 extern char    CodeName[9];
 #ifdef DOS
-extern char   *ApogeePath;
+extern char   ApogeePath[256];
 #else
-extern char   *ApogeePath;
+extern char   ApogeePath[256];
 #endif
 
 extern int     DefaultDifficulty;
