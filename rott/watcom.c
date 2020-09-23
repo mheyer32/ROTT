@@ -165,6 +165,33 @@ int ULongDiv(int eins,int zwei)
 
 	return eins;
 }
+
+fixed FixedMulShift(fixed eins, fixed zwei, fixed shift)
+{
+    __asm __volatile
+        ("muls.l %1,%1:%0 \n\t"
+
+
+         : "=d" (eins), "=d" (zwei)
+         : "0" (eins), "1" (zwei)
+         );
+
+    return (((unsigned __int64)eins) >> shift) & 0xffffffff;
+}
+
+
+
+fixed FixedScale(fixed orig, fixed factor, fixed divisor)
+{
+    __int64 x = orig;
+    __int64 y = factor;
+    __int64 z = divisor;
+
+    __int64 w = (x * y) / z;
+
+    return (w) & 0xffffffff;
+}
+
 #endif
 
 #endif

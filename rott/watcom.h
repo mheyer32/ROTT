@@ -23,6 +23,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef C_FIXED_MATH
 fixed FixedMul(fixed a, fixed b);
 fixed FixedDiv2(fixed a, fixed b);
+
+static inline  fixed FixedMul(fixed a, fixed b)
+{
+    __int64 scratch1 = (__int64) a * (__int64) b + (__int64) 0x8000;
+    return (scratch1 >> 16) & 0xffffffff;
+}
+
+static inline fixed FixedDiv2(fixed a, fixed b)
+{
+    __int64 x = (signed int)a;
+    __int64 y = (signed int)b;
+    __int64 z = x * 65536 / y;
+    return (z) & 0xffffffff;
+}
+
 #else
 fixed (*FixedMul) (fixed a, fixed b);
 fixed (*FixedDiv2) (fixed a, fixed b);
@@ -34,6 +49,7 @@ fixed FixedDiv060(fixed eins,fixed zwei);
 
 fixed FixedScale(fixed orig, fixed factor, fixed divisor);
 fixed FixedMulShift(fixed a, fixed b, fixed shift);
+
 #ifdef __WATCOMC__
 #pragma aux FixedMul =  \
         "imul ebx",                     \
