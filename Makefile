@@ -19,7 +19,7 @@ PREFIX = $(shell ./getprefix.sh "$(CC)")
 CFLAGS += -m68030 -s -msmall-code -mregparm=4 -noixemul
 CFLAGS += -Werror -Wimplicit -Wdouble-promotion -fstrict-aliasing
 
-LDFLAGS = -noixemul -s
+LDFLAGS = -noixemul -s -msmall-code
 
 #Always	provide symbols, will be stripped away  for target executable
 CFLAGS += -g -ggdb
@@ -118,13 +118,14 @@ clean :
 	rm -rf obj
 
 ROTT.exe: $(OBJ_FILES) | Makefile
-	$(CC) -v $(CFLAGS) $(LDFLAGS) -o $@ $^ \
+	$(CC) -v $(CFLAGS) $(LDFLAGS) -Wl,-Map=ROTT.map -o $@  \
 		rott/c2p1x1_6_c5_bm_040.o \
 		rott/c2p1x1_6_c5_bm.o \
 		rott/c2p1x1_8_c5_bm_040.o  \
 		rott/c2p1x1_8_c5_bm.o  \
 		rott/indivision.o \
-		rott/m_mmu.o
+		rott/m_mmu.o \
+		$^
 	$(STRIP) --strip-debug --strip-unneeded --strip-all $@ -o $(BINDIR)/$@
 
 $(OBJ_FILES): % : | Makefile
