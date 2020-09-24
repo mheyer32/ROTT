@@ -744,13 +744,7 @@ void Z_CheckHeap (void)
 ========================
 */
 
-void Z_ChangeTag (void *ptr, int tag)
-{
-        memblock_t      *block;
 
-        block = (memblock_t *) ( (byte *)ptr - sizeof(memblock_t));
-        block->tag = tag;
-}
 
 /*
 ========================

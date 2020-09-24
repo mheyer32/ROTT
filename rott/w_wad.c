@@ -41,6 +41,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_crc.h"
 #include "rt_main.h"
 
+
+#include <assert.h>
 //=============
 // GLOBALS
 //=============
@@ -461,15 +463,10 @@ void W_WriteLump (int lump, void *src)
 =
 ====================
 */
-void    *W_CacheLumpNum (int lump, int tag, converter_t converter, int numrec)
+void    *W_CacheLumpNumUncached (int lump, int tag, converter_t converter, int numrec)
 {
-        if (lump >= (int)numlumps)
-                Error ("W_CacheLumpNum: %i >= numlumps",lump);
+        assert(!lumpcache[lump]);
 
-        else if (lump < 0)
-                Error ("W_CacheLumpNum: %i < 0  Taglevel: %i",lump,tag);
-
-        if (!lumpcache[lump])
         {
                 // read the lump in
 #if (PRECACHETEST == 1)
@@ -501,31 +498,6 @@ void    *W_CacheLumpNum (int lump, int tag, converter_t converter, int numrec)
                 converter(lumpcache[lump], numrec);
 #endif
         }
-        else
-           {
-#if (DATACORRUPTIONTEST == 1)
-
-               if (*(lumpcheck+lump)==255)
-                  Error("Tried using lump%ld before reading it in\n",lump);
-               (*(lumpcheck+lump))--;
-               if (*(lumpcheck+lump)==0)
-                  {
-                  word storedcrc;
-                  word crc;
-                  int length;
-
-                  *(lumpcheck+lump)=CHECKPERIOD;
-
-                  length=W_LumpLength(lump);
-                  storedcrc = *( (word *) ((byte *)lumpcache[lump]+length) );
-                  crc = CalculateCRC (lumpcache[lump], length);
-                  if (crc!=storedcrc)
-                     Error("Data corruption lump=%ld\n",lump);
-                  }
-#endif
-               Z_ChangeTag (lumpcache[lump],tag);
-           }
-
         return lumpcache[lump];
 }
 

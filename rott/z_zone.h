@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _z_zone_public
 #define _z_zone_public
 
+#include "_z_zone.h"
 
 extern int lowmemory;
 
@@ -66,7 +67,6 @@ void *Z_LevelMalloc (int size, int tag, void *user); // Level Malloc for level s
 void Z_FreeTags (int lowtag, int hightag);      // Free a series of memory tags
 void Z_DumpHeap (int lowtag, int hightag);      // Dump the heap (for debugging purposes)
 void Z_CheckHeap (void);                        // Check the heap for corruption
-void Z_ChangeTag (void *ptr, int tag);          // Change the tag of a memory item
 int Z_HeapSize ( void );                        // Return the total heap size
 int Z_UsedHeap ( void );                        // Return used portion of heap size
 int Z_AvailHeap ( void );                       // Returns largest available contiguous block
@@ -75,5 +75,14 @@ void Z_ShutDown( void );
 int Z_GetSize (void *ptr);
 int Z_UsedLevelHeap ( void );
 void Z_Realloc (void ** ptr, int newsize);
+
+static inline void Z_ChangeTag (void *ptr, int tag)
+{
+    memblock_t      *block;
+
+    block = (memblock_t *) ( (byte *)ptr - sizeof(memblock_t));
+    block->tag = tag;
+}          // Change the tag of a memory item
+
 
 #endif
