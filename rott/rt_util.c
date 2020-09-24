@@ -584,10 +584,10 @@ void ShutdownSoftError ( void )
 =================
 */
 
-int CheckParm (char *check)
+int CheckParm (char const *check)
 {
 	int		i;
-	char	*parm;
+	char const *parm;
 
 	for (i = 1;i<_argc;i++)
 	{
@@ -1088,9 +1088,9 @@ void ExtractFileBase (char *path, char *dest)
 ==============
 */
 
-long ParseHex (char *hex)
+long ParseHex (char const *hex)
 {
-	char	*str;
+	char const* str;
 	long	num;
 
 	num = 0;
@@ -1114,7 +1114,7 @@ long ParseHex (char *hex)
 }
 
 
-long ParseNum (char *str)
+long ParseNum (char const *str)
 {
 	if (str[0] == '$')
 		return ParseHex (str+1);
@@ -1349,10 +1349,10 @@ void SetPalette ( char * pal )
 //
 //******************************************************************************
 
-int US_CheckParm (char *parm, char **strings)
+int US_CheckParm (char const *parm, char const * const *strings)
 {
-   char  cp,cs,
-         *p,*s;
+    char  cp,cs;
+    char const *p,*s;
    int      i;
    int      length;
 

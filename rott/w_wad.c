@@ -81,7 +81,7 @@ static byte *lumpcheck;
 ====================
 */
 
-void W_AddFile (char *_filename)
+void W_AddFile (char const *_filename)
 {
         wadinfo_t               header;
         lumpinfo_t              *lump_p;
@@ -225,7 +225,7 @@ void W_CheckWADIntegrity ( void )
 ====================
 */
 
-void W_InitMultipleFiles (char **filenames)
+void W_InitMultipleFiles (char const * const *filenames)
 {
 //
 // open all the files, load headers, and count lumps
@@ -271,9 +271,9 @@ void W_InitMultipleFiles (char **filenames)
 ====================
 */
 
-void W_InitFile (char *filename)
+void W_InitFile (char const *filename)
 {
-        char    *names[2];
+        char const *names[2];
 
         names[0] = filename;
         names[1] = NULL;

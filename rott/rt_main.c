@@ -177,7 +177,7 @@ extern void RecordDemoQuery ( void );
 #define MAXARGVS        100
 
 /* these command line arguments are flags */
-  static char *flags[] = {
+  static char const * const flags[] = {
     "NOSOUND",
     "EHB",
     "CGX",
@@ -187,7 +187,7 @@ extern void RecordDemoQuery ( void );
     "LOMEM"    
   };
 
-int __stdargs main (int argc, char *argv[])
+int __stdargs main (int argc, char const *argv[])
 {
     struct WBStartup *argmsg;
     struct WBArg *wb_arg;
@@ -208,16 +208,18 @@ int __stdargs main (int argc, char *argv[])
         if (argc == 0) {
             argmsg = (struct WBStartup *)argv;
             wb_arg = argmsg->sm_ArgList;
-            if ((_argv[_argc] = malloc(strlen(wb_arg->wa_Name)+1)) == NULL)
+
+            char *copy = strdup(wb_arg->wa_Name);
+            if (copy == NULL)
               Error ("malloc(%d) failed", strlen(wb_arg->wa_Name)+1);
-    
-            strcpy (_argv[_argc++], wb_arg->wa_Name);
+
+            _argv[_argc++] = copy;
         }
-        if ((obj = GetDiskObject (_argv[0])) != NULL) {
+        if ((obj = GetDiskObject ((STRPTR)_argv[0])) != NULL) {
             toolarray = obj->do_ToolTypes;
             for (i = 0; i < sizeof(flags)/sizeof(flags[0]); i++) {
-              if (FindToolType (toolarray, &flags[i][0]) != NULL) {
-                _argv[_argc++] = flags[i];
+                if (FindToolType (toolarray, (STRPTR)flags[i]) != NULL) {
+                    _argv[_argc++] = flags[i];
               }
             }
     
@@ -654,7 +656,7 @@ void DrawRottTitle ( void )
 
 void CheckCommandLineParameters( void )
 {
-   char *PStrings[] = {"TEDLEVEL","NOWAIT","NOSOUND","NOW",
+   static char const * const PStrings[] = {"TEDLEVEL","NOWAIT","NOSOUND","NOW",
                        "TRANSPORT","DOPEFISH","SCREENSHOTS",
                        "MONO","MAPSTATS","TILESTATS","VER","net",
                        "PAUSE","SOUNDSETUP","WARP","IS8250","ENABLEVR",
@@ -936,10 +938,10 @@ void CheckCommandLineParameters( void )
 
 void SetupWads( void )
 {
-   char  *newargs[99];
+   char const  * newargs[99];
    int i, arg, argnum = 0;
    char tempstr[129];
-   char *PStrings[] = {"AIM", "FULLSCREEN", "WINDOW", "RESOLUTION", NULL };
+   static char const * const PStrings[] = {"AIM", "FULLSCREEN", "WINDOW", "RESOLUTION", NULL };
 
    // These must be checked here so that they can override the cfg file
    for (i = 1;i < _argc;i++)

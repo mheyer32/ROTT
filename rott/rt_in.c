@@ -152,7 +152,7 @@ static   Direction   DirTable[] =      // Quick lookup for total direction
 
 int (far *function_ptr)();
 
-static char *ParmStrings[] = {"nojoys","nomouse","spaceball","cyberman","assassin",NULL};
+static char const * const ParmStrings[] = {"nojoys","nomouse","spaceball","cyberman","assassin",NULL};
 
 
 

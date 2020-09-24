@@ -30,8 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "z_zone.h"
 #include "rt_util.h"
 
-void    W_InitMultipleFiles (char **filenames); // Initialize multiple wads
-void    W_InitFile (char *filename);            // Init a single wad file
+void    W_InitMultipleFiles (const char* const * filenames); // Initialize multiple wads
+void    W_InitFile (char const *filename);            // Init a single wad file
 
 int     W_CheckNumForName (char *name);         // Check to see if the named lump exists
 int     W_GetNumForName (char *name);           // Get the number for the named lump
