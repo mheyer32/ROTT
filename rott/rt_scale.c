@@ -243,8 +243,6 @@ void ScaleTransparentPost (byte * src, byte * buf, int level)
          offset=*(src++);
          }
       }
-
-   whereami=-2;
 }
 
 
@@ -1353,110 +1351,114 @@ void DrawNormalSprite (int x, int y, int shapenum)
 
 #ifndef DOS
 
+typedef union {
+    fixed f;
+    struct
+    {
+        unsigned int t : 16;
+        unsigned int frac : 16;
+    } bits;
+} YFrac;
+
 void R_DrawColumn (byte * buf)
 {
 	// This is *NOT* 100% correct - DDOI
-	int count;
-	int frac, fracstep;
-	byte *dest;
-
-	count = dc_yh - dc_yl + 1;
+	short count = dc_yh - dc_yl + 1;
 	if (count < 0) return;
 
-	dest = buf + ylookup[dc_yl];
+	byte *dest = buf + ylookup[dc_yl];
 
-	fracstep = dc_iscale;
-	frac = dc_texturemid + (dc_yl-centery)*fracstep;
+	int fracstep = dc_iscale;
+    YFrac frac;
+    frac.f = dc_texturemid + (dc_yl-centery)*fracstep;
 
+    const short width = iGLOBAL_SCREENWIDTH;
 	while (count--) {
-		//*dest = test++;
-		*dest = shadingtable[dc_source[(frac>>SFRACBITS)]];
-		dest += iGLOBAL_SCREENWIDTH;
-		frac += fracstep;
+		*dest = shadingtable[dc_source[frac.bits.t]];
+		dest += width;
+		frac.f += fracstep;
 	}
 }
 
 void R_TransColumn (byte * buf)
 {
-	int count;
-	byte *dest;
-
-	count = dc_yh - dc_yl + 1;
+	short count = dc_yh - dc_yl + 1;
 	if (count < 0) return;
 
-	dest = buf + ylookup[dc_yl];
+	byte* dest = buf + ylookup[dc_yl];
 
+    const int width = iGLOBAL_SCREENWIDTH;
 	while (count--)
 	{
 		*dest = shadingtable[*dest];
-		dest += iGLOBAL_SCREENWIDTH;
+		dest += width;
 	}
 }
 
+
+typedef union {
+    fixed f;
+    struct
+    {
+        unsigned int topbits : 10;
+        unsigned int t : 6;
+        unsigned int frac : 16;
+    } bits;
+} WallFrac;
+
 void R_DrawWallColumn (byte * buf)
 {
-	// This is *NOT* 100% correct - DDOI
-	int count;
-	int frac, fracstep;
-	byte *dest;
+    // This is *NOT* 100% correct - DDOI
+    short count = dc_yh - dc_yl;
+    if (count < 0) return;
 
-	count = dc_yh - dc_yl;
-	if (count < 0) return;
+    byte *dest = buf + ylookup[dc_yl];
 
-	dest = buf + ylookup[dc_yl];
+    int fracstep = dc_iscale;
+    WallFrac frac;
+    frac.f = dc_texturemid + (dc_yl-centery)*fracstep;
+    const int width = iGLOBAL_SCREENWIDTH;
 
-	fracstep = dc_iscale;
-	frac = dc_texturemid + (dc_yl-centery)*fracstep;
-	frac <<= 10;
-	fracstep <<= 10;
-
-	while (count--) {
-		//*dest = 6;
-		*dest = shadingtable[dc_source[(((unsigned)frac)>>26)]];
-		dest += iGLOBAL_SCREENWIDTH;
-		frac += fracstep;
-	}
+    while (count--) {
+        *dest = shadingtable[dc_source[frac.bits.t]];
+        dest += width;
+        frac.f += fracstep;
+    }
 }
 
 void R_DrawClippedColumn (byte * buf)
 {
 	// This is *NOT* 100% correct - DDOI zxcv
-	int count;
-	int frac, fracstep;
-	byte *dest;
-//		byte *b;int y;
-
-	count = dc_yh - dc_yl + 1;
+	short count = dc_yh - dc_yl + 1;
 	if (count < 0) return;
 
-   dest = buf + ylookup[dc_yl];
+    byte *dest = buf + ylookup[dc_yl];
 
+	int fracstep = dc_iscale;
 
-	fracstep = dc_iscale;
-	frac = dc_texturemid + (dc_yl-centeryclipped)*fracstep;
+    YFrac frac;
+	frac.f = dc_texturemid + (dc_yl-centeryclipped)*fracstep;
 
+    const int width = iGLOBAL_SCREENWIDTH;
 	while (count--) {
-		*dest = shadingtable[dc_source[(((unsigned)frac)>>SFRACBITS)]];
-		dest += iGLOBAL_SCREENWIDTH;
-		frac += fracstep;
+		*dest = shadingtable[dc_source[frac.bits.t]];
+		dest += width;
+		frac.f += fracstep;
 	}
 }
 
 void R_DrawSolidColumn (int color, byte * buf)
 {
-	int count;
-	int frac, fracstep;
-	byte *dest;
-
-	count = dc_yh - dc_yl + 1;
+	short count = dc_yh - dc_yl + 1;
 	if (count < 0) return;
 
-	dest = buf + ylookup[dc_yl];
+	byte *dest = buf + ylookup[dc_yl];
 
+    const int width = iGLOBAL_SCREENWIDTH;
 	while (count--)
 	{
 		*dest = (byte)color;
-		dest += iGLOBAL_SCREENWIDTH;
+		dest += width;
 	}
 }
 
