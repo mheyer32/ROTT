@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //***************************************************************************
 
-void DrawSkyPost (byte * buf, byte * src, int height);
+void DrawSkyPost (byte * buf, byte * src, short height);
 void DrawRow(int count, byte * dest, byte * src);
 void DrawRotRow(int count, byte * dest, byte * src);
 void DrawMaskedRotRow(int count, byte * dest, byte * src);
