@@ -152,6 +152,7 @@ static void channelDoneCallback(int channel)
 //  go to the file that is specified in that variable. Otherwise, they
 //  are ignored for the expense of the function call. If DUKESND_DEBUG is
 //  set to "-" (without the quotes), then the output goes to stdout.
+#ifndef NDEBUG
 static void snddebug(const char *fmt, ...) __attribute__((format(printf,1,2)));
 static void snddebug(const char *fmt, ...)
 {
@@ -167,7 +168,6 @@ static void snddebug(const char *fmt, ...)
         fflush(debug_file);
     } // if
 } // snddebug
-
 
 // FIXME: Consolidate this code.
 // Same as snddebug(), but a different tag is put on each line.
@@ -186,10 +186,14 @@ static void musdebug(const char *fmt, ...)
         fflush(debug_file);
     } // if
 } // snddebug
-
+#else
+#define snddebug(...)
+#define musdebug(...)
+#endif
 
 static void init_debugging(void)
 {
+#ifndef NDEBUG
     const char *envr;
 
     if (initialized_debugging)
@@ -210,7 +214,9 @@ static void init_debugging(void)
     } // if
 
     initialized_debugging = 1;
+#endif
 } // init_debugging
+
 
 
 // find an available SDL_mixer channel, and reserve it.
@@ -1220,6 +1226,7 @@ int MUSIC_PlaySongROTT(unsigned char *song, int size, int loopflag)
         Mus_Play((int)musicHandle, loopflag);
     
     return(MUSIC_Ok);
+
 } // MUSIC_PlaySongROTT
 
 void MUSIC_SetContext(int context)
