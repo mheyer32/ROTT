@@ -17,10 +17,10 @@ PHXASS := vasmm68k_mot
 PREFIX = $(shell ./getprefix.sh "$(CC)")
 
 #-Wstrict-prototypes
-CFLAGS += -m68030 -s -msmall-code -mregparm=4 -noixemul
+CFLAGS += -m68030 -mregparm=4 -noixemul
 CFLAGS += -Werror -Wimplicit -Wdouble-promotion -fstrict-aliasing
 
-LDFLAGS = -noixemul -s -msmall-code
+LDFLAGS = -noixemul -msmall-code
 
 #Always	provide symbols, will be stripped away  for target executable
 CFLAGS += -g -ggdb
@@ -35,7 +35,7 @@ ifeq ($(DEBUG), 1)
 	CFLAGS += -DDEBUG=1 -Og -ffast-math -fno-omit-frame-pointer
 	#-DRANGECHECK
 else
-	CFLAGS += -DNDEBUG -DDEBUG=0 -Os -fstrength-reduce -ffast-math -fexpensive-optimizations
+	CFLAGS += -DNDEBUG -DDEBUG=0 -Ofast -fstrength-reduce -ffast-math -fexpensive-optimizations
 	ifeq ($(PROFILE), 0)
 		CFLAGS +=-fomit-frame-pointer
 	endif
