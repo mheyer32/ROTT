@@ -1355,10 +1355,11 @@ typedef union {
     fixed f;
     struct
     {
-        unsigned int t : 16;
+        unsigned int topbits : 8;
+        unsigned int t : 8;
         unsigned int frac : 16;
     } bits;
-} YFrac;
+} ColumnFrac;
 
 void R_DrawColumn (byte * buf)
 {
@@ -1369,7 +1370,7 @@ void R_DrawColumn (byte * buf)
 	byte *dest = buf + ylookup[dc_yl];
 
 	int fracstep = dc_iscale;
-    YFrac frac;
+    ColumnFrac frac;
     frac.f = dc_texturemid + (dc_yl-centery)*fracstep;
 
     const short width = iGLOBAL_SCREENWIDTH;
@@ -1436,7 +1437,7 @@ void R_DrawClippedColumn (byte * buf)
 
 	int fracstep = dc_iscale;
 
-    YFrac frac;
+    ColumnFrac frac;
 	frac.f = dc_texturemid + (dc_yl-centeryclipped)*fracstep;
 
     const int width = iGLOBAL_SCREENWIDTH;
