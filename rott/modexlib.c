@@ -685,7 +685,7 @@ void TurnOffTextCursor ( void )
  
 void WaitVBL( void )
 {
- 
+    WaitTOF();
 }
 
 /*
