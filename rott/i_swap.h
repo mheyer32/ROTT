@@ -1,4 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
+// Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
@@ -24,10 +24,8 @@
 //
 //-----------------------------------------------------------------------------
 
-
 #ifndef __I_SWAP__
 #define __I_SWAP__
- 
 
 // Endianess handling.
 // WAD files are stored little endian.
@@ -39,39 +37,32 @@
 
 extern inline short SwapSHORT(short val)
 {
-	__asm __volatile
-	(
-		"ror.w	#8,%0"
+    __asm __volatile("ror.w	#8,%0"
 
-		: "=d" (val)
-		: "0" (val)
-	);
-	
-	return val;
+                     : "=d"(val)
+                     : "0"(val));
+
+    return val;
 }
 
 extern inline long SwapLONG(long val)
 {
-	__asm __volatile
-	(
-		"ror.w	#8,%0 \n\t"
-		"swap	%0 \n\t"
-		"ror.w	#8,%0"
-		
-		: "=d" (val)
-		: "0" (val)
-	);
-	
-	return val;
+    __asm __volatile(
+        "ror.w	#8,%0 \n\t"
+        "swap	%0 \n\t"
+        "ror.w	#8,%0"
+
+        : "=d"(val)
+        : "0"(val));
+
+    return val;
 }
 
 #define SHORT(x) SwapSHORT(x)
 #define LONG(x) SwapLONG(x)
 
 // Defines for checking the endianness of the system.
- 
+
 #define SYS_BIG_ENDIAN
- 
 
 #endif
-

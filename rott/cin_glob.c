@@ -20,26 +20,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "cin_glob.h"
 #include "rt_in.h"
 #include "rt_draw.h"
-//MED
+// MED
 #include "memcheck.h"
 
-void CinematicDelay ( void )
+void CinematicDelay(void)
 {
-   CalcTics();
+    CalcTics();
 }
 
-int GetCinematicTime ( void )
+int GetCinematicTime(void)
 {
-   return GetTicCount ();
+    return GetTicCount();
 }
 
-boolean CinematicAbort( void )
+boolean CinematicAbort(void)
 {
-   return (IN_CheckAck ());
+    return (IN_CheckAck());
 }
 
-void ClearCinematicAbort( void )
+void ClearCinematicAbort(void)
 {
-   IN_StartAck ();
+    IN_StartAck();
 }
-

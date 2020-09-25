@@ -45,9 +45,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_view.h"
 #include "cin_efct.h"
 #include "w_wad.h"
-//MED
+// MED
 #include "memcheck.h"
-
 
 //******************************************************************************
 //
@@ -55,13 +54,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //******************************************************************************
 
-byte     *updateptr;
+byte *updateptr;
 unsigned mapwidthtable[64];
 unsigned uwidthtable[UPDATEHIGH];
-unsigned blockstarts[UPDATEWIDE*UPDATEHIGH];
-byte     update[UPDATESIZE];
-boolean  screenfaded;
-
+unsigned blockstarts[UPDATEWIDE * UPDATEHIGH];
+byte update[UPDATESIZE];
+boolean screenfaded;
 
 //******************************************************************************
 //
@@ -69,11 +67,10 @@ boolean  screenfaded;
 //
 //******************************************************************************
 
-static byte  pixmasks[4] = {1,2,4,8};
-static byte  leftmasks[4] = {15,14,12,8};
-static byte  rightmasks[4] = {1,3,7,15};
-static byte  palette1[768], palette2[768];
-
+static byte pixmasks[4] = {1, 2, 4, 8};
+static byte leftmasks[4] = {15, 14, 12, 8};
+static byte rightmasks[4] = {1, 3, 7, 15};
+static byte palette1[768], palette2[768];
 
 //******************************************************************************
 //
@@ -81,236 +78,213 @@ static byte  palette1[768], palette2[768];
 //
 //******************************************************************************
 
-void VL_MemToScreen (byte *source, int width, int height, int x, int y)
+void VL_MemToScreen(byte *source, int width, int height, int x, int y)
 {
 #ifdef DOS
-   byte *screen, *dest, mask;
-   int  plane;
+    byte *screen, *dest, mask;
+    int plane;
 
-   dest = (byte *)(bufferofs+ylookup[y]+(x>>2));
-//   dest = (byte *)(displayofs+ylookup[y]+(x>>2));
-   mask = 1 << (x&3);
+    dest = (byte *)(bufferofs + ylookup[y] + (x >> 2));
+    //   dest = (byte *)(displayofs+ylookup[y]+(x>>2));
+    mask = 1 << (x & 3);
 
+    for (plane = 0; plane < 4; plane++) {
+        VGAMAPMASK(mask);
 
-   for (plane = 0; plane<4; plane++)
-   {
-      VGAMAPMASK (mask);
+        screen = dest;
+        for (y = 0; y < height; y++, screen += linewidth, source += width)
+            memcpy(screen, source, width);
 
-      screen = dest;
-      for (y = 0; y < height; y++, screen += linewidth, source+=width)
-         memcpy (screen, source, width);
+        mask <<= 1;
 
-
-      mask <<= 1;
-
-      if (mask == 16)
-      {
-         mask = 1;
-         dest++;
-      }
-   }
+        if (mask == 16) {
+            mask = 1;
+            dest++;
+        }
+    }
 #else
-	/* TODO please optimize me */
-	
-	byte *ptr, *destline;
-	int plane, i, j;
-	
-	ptr = source;
-	
-	for (plane = 0; plane < 4; plane++) {
-		for (j = 0; j < height; j++) {
-			destline = (byte *)(bufferofs+ylookup[y+j]+x);
+    /* TODO please optimize me */
 
-			for (i = 0; i < width; i++) {
-//				if (ptr < bufferofs + toplimit) { //bnafix zxcvb
-					*(destline + i*4 + plane) = *ptr++;
-//				}
-			}			
-		}
-	}
+    byte *ptr, *destline;
+    int plane, i, j;
+
+    ptr = source;
+
+    for (plane = 0; plane < 4; plane++) {
+        for (j = 0; j < height; j++) {
+            destline = (byte *)(bufferofs + ylookup[y + j] + x);
+
+            for (i = 0; i < width; i++) {
+                //				if (ptr < bufferofs + toplimit) { //bnafix zxcvb
+                *(destline + i * 4 + plane) = *ptr++;
+                //				}
+            }
+        }
+    }
 #endif
 }
 // bna function start
-void VL_MemToScreenClipped (byte *source, int width, int height, int x, int y);
-void VL_MemToScreenClipped (byte *source, int width, int height, int x, int y)
+void VL_MemToScreenClipped(byte *source, int width, int height, int x, int y);
+void VL_MemToScreenClipped(byte *source, int width, int height, int x, int y)
 {
-	byte *ptr, *destline;
-	int plane, i, j;//,toplimit;
-	ptr = source;
-	for (plane = 0; plane < 4; plane++) {
-		for (j = 0; j < height; j++) {
-			destline = (byte *)(bufferofs+ylookup[y+j]+x);
-			for (i = 0; i < width; i++) {
-				if (*ptr != 255){
-					*(destline + i*4 + plane) = *ptr++;
-				}else{ptr++;}
-			}			
-		}
-	}
+    byte *ptr, *destline;
+    int plane, i, j;  //,toplimit;
+    ptr = source;
+    for (plane = 0; plane < 4; plane++) {
+        for (j = 0; j < height; j++) {
+            destline = (byte *)(bufferofs + ylookup[y + j] + x);
+            for (i = 0; i < width; i++) {
+                if (*ptr != 255) {
+                    *(destline + i * 4 + plane) = *ptr++;
+                } else {
+                    ptr++;
+                }
+            }
+        }
+    }
 }
 
-//copy picture to mem (bufferofs) in doublesize
-void VL_MemStrechedToScreen (byte *source, int width, int height, int x, int y)
+// copy picture to mem (bufferofs) in doublesize
+void VL_MemStrechedToScreen(byte *source, int width, int height, int x, int y)
 {
-	byte *ptr, *destline,*tmp,*o;
-	int plane, i, j;
-	
-	tmp = bufferofs;
-	ptr = source;
-	
-	for (plane = 0; plane < 4; plane++) {
-		for (j = 0; j < height; j++) {
-			destline = (byte *)(bufferofs+(iGLOBAL_SCREENWIDTH*j)+ylookup[y+j]+x);
-			o = ptr;
-			for (i = 0; i < width; i+=1) {
-				*(destline + i*4 + plane) = *ptr;
-				destline++;
-				*(destline + i*4 + plane) = *ptr++;
-			}
-			ptr = o;
+    byte *ptr, *destline, *tmp, *o;
+    int plane, i, j;
 
-			destline = (byte *)(bufferofs+iGLOBAL_SCREENWIDTH+(iGLOBAL_SCREENWIDTH*j)+ylookup[y+j]+x);
-			for (i = 0; i < width; i+=1) {
-				*(destline + i*4 + plane) = *ptr;
-				destline++;
-				*(destline + i*4 + plane) = *ptr++;
+    tmp = bufferofs;
+    ptr = source;
 
-			}	
+    for (plane = 0; plane < 4; plane++) {
+        for (j = 0; j < height; j++) {
+            destline = (byte *)(bufferofs + (iGLOBAL_SCREENWIDTH * j) + ylookup[y + j] + x);
+            o = ptr;
+            for (i = 0; i < width; i += 1) {
+                *(destline + i * 4 + plane) = *ptr;
+                destline++;
+                *(destline + i * 4 + plane) = *ptr++;
+            }
+            ptr = o;
 
-		}
-	}
-	bufferofs = tmp;
+            destline = (byte *)(bufferofs + iGLOBAL_SCREENWIDTH + (iGLOBAL_SCREENWIDTH * j) + ylookup[y + j] + x);
+            for (i = 0; i < width; i += 1) {
+                *(destline + i * 4 + plane) = *ptr;
+                destline++;
+                *(destline + i * 4 + plane) = *ptr++;
+            }
+        }
+    }
+    bufferofs = tmp;
 }
 // bna function end
-
 
 //*************************************************************************
 //
 // DrawTiledRegion () - Fills the specified region with a tiled image
 //
 //*************************************************************************
-void DrawTiledRegion
-   (
-   int x,
-   int y,
-   int width,
-   int height,
-   int offx,
-   int offy,
-   pic_t *tile
-   )
+void DrawTiledRegion(int x, int y, int width, int height, int offx, int offy, pic_t *tile)
 
-   {
-   byte  *source;
-   byte  *sourceoff;
-   int    sourcex;
-   int    sourcey;
-   int    sourcewidth;
-   int    sourceheight;
-   int    mask;
-   int    plane;
-   int    planesize;
-   byte  *start;
-   byte  *origdest;
-   byte  *dest;
-   int    startoffset;
-   int    HeightIndex;
-   int    WidthIndex;
+{
+    byte *source;
+    byte *sourceoff;
+    int sourcex;
+    int sourcey;
+    int sourcewidth;
+    int sourceheight;
+    int mask;
+    int plane;
+    int planesize;
+    byte *start;
+    byte *origdest;
+    byte *dest;
+    int startoffset;
+    int HeightIndex;
+    int WidthIndex;
 
 #ifdef DOS
-   start = ( byte * )( bufferofs + ( x>>2 ) + ylookup[ y ] );
+    start = (byte *)(bufferofs + (x >> 2) + ylookup[y]);
 #else
-   start = ( byte * )( bufferofs +  x + ylookup[ y ] );
+    start = (byte *)(bufferofs + x + ylookup[y]);
 #endif
 
-   source       = &tile->data;
-   sourcewidth  = tile->width;
-   sourceheight = tile->height;
+    source = &tile->data;
+    sourcewidth = tile->width;
+    sourceheight = tile->height;
 #ifdef DOS
-   offx >>= 2;
+    offx >>= 2;
 #endif
-   if ( offx >= sourcewidth )
-      {
-      offx %= sourcewidth;
-      }
-   if ( offy >= sourceheight )
-      {
-      offy %= sourceheight;
-      }
+    if (offx >= sourcewidth) {
+        offx %= sourcewidth;
+    }
+    if (offy >= sourceheight) {
+        offy %= sourceheight;
+    }
 
-   startoffset = offy * sourcewidth;
-   planesize = sourcewidth * sourceheight;
+    startoffset = offy * sourcewidth;
+    planesize = sourcewidth * sourceheight;
 
 #ifdef DOS
-   width >>= 2;
+    width >>= 2;
 
-   mask  = 1 << ( x & 3 );
+    mask = 1 << (x & 3);
 #endif
-   plane = 4;
-   while( plane > 0 )
-      {
-      VGAMAPMASK( mask );
-      
+    plane = 4;
+    while (plane > 0) {
+        VGAMAPMASK(mask);
+
 #ifdef DOS
-      origdest = start;
+        origdest = start;
 #else
-      origdest = start+(4-plane);
+        origdest = start + (4 - plane);
 #endif
 
-      sourcey     = offy;
-      sourceoff   = source + startoffset;
-      HeightIndex = height;
+        sourcey = offy;
+        sourceoff = source + startoffset;
+        HeightIndex = height;
 
-      while( HeightIndex-- )
-         {
-         dest       = origdest;
-         sourcex    = offx;
-         WidthIndex = width;
-         while( WidthIndex-- )
-            {
-            *dest = sourceoff[ sourcex ];
+        while (HeightIndex--) {
+            dest = origdest;
+            sourcex = offx;
+            WidthIndex = width;
+            while (WidthIndex--) {
+                *dest = sourceoff[sourcex];
 #ifdef DOS
-            dest++;
+                dest++;
 #else
-            dest += 4;
+                dest += 4;
 #endif
-            
-            sourcex++;
-            if ( sourcex >= sourcewidth )
-               {
-               sourcex = 0;
-               }
+
+                sourcex++;
+                if (sourcex >= sourcewidth) {
+                    sourcex = 0;
+                }
             }
 
 #ifdef DOS
-         origdest  += iGLOBAL_SCREENBWIDE;
-#else 
-         origdest += iGLOBAL_SCREENWIDTH;
+            origdest += iGLOBAL_SCREENBWIDE;
+#else
+            origdest += iGLOBAL_SCREENWIDTH;
 #endif
 
-         sourceoff += sourcewidth;
-         sourcey++;
-         if ( sourcey >= sourceheight )
-            {
-            sourcey   = 0;
-            sourceoff = source;
+            sourceoff += sourcewidth;
+            sourcey++;
+            if (sourcey >= sourceheight) {
+                sourcey = 0;
+                sourceoff = source;
             }
-         }
+        }
 
-      source += planesize;
+        source += planesize;
 
 #ifdef DOS
-      mask <<= 1;
-      if ( mask > 8 )
-         {
-         mask = 1;
-         }
+        mask <<= 1;
+        if (mask > 8) {
+            mask = 1;
+        }
 #endif
 
-      plane--;
-      }
-   }
-
+        plane--;
+    }
+}
 
 //******************************************************************************
 //
@@ -318,14 +292,12 @@ void DrawTiledRegion
 //
 //******************************************************************************
 
-void VWB_DrawPic (int x, int y, pic_t *pic)
+void VWB_DrawPic(int x, int y, pic_t *pic)
 {
-   if (((iGLOBAL_SCREENWIDTH > 320) && !StretchScreen) ||
-       VW_MarkUpdateBlock (x, y, x+(pic->width<<2)-1, y+(pic->height)-1))
-      VL_MemToScreen ((byte *)&pic->data, pic->width, pic->height, x, y);
+    if (((iGLOBAL_SCREENWIDTH > 320) && !StretchScreen) ||
+        VW_MarkUpdateBlock(x, y, x + (pic->width << 2) - 1, y + (pic->height) - 1))
+        VL_MemToScreen((byte *)&pic->data, pic->width, pic->height, x, y);
 }
-
-
 
 //******************************************************************************
 //
@@ -333,61 +305,56 @@ void VWB_DrawPic (int x, int y, pic_t *pic)
 //
 //******************************************************************************
 
-void VL_Bar (int x, int y, int width, int height, int color)
+void VL_Bar(int x, int y, int width, int height, int color)
 {
 #ifdef DOS
-   byte  *dest;
-   byte  leftmask,rightmask;
-   int   midbytes,linedelta;
+    byte *dest;
+    byte leftmask, rightmask;
+    int midbytes, linedelta;
 
-   leftmask = leftmasks[x&3];
-   rightmask = rightmasks[(x+width-1)&3];
-   midbytes = ((x+width+3)>>2) - (x>>2) - 2;
-   linedelta = linewidth-(midbytes+1);
+    leftmask = leftmasks[x & 3];
+    rightmask = rightmasks[(x + width - 1) & 3];
+    midbytes = ((x + width + 3) >> 2) - (x >> 2) - 2;
+    linedelta = linewidth - (midbytes + 1);
 
-   dest = (byte *)(bufferofs+ylookup[y]+(x>>2));
+    dest = (byte *)(bufferofs + ylookup[y] + (x >> 2));
 
-   if (midbytes < 0)
-   {
-   // all in one byte
-      VGAMAPMASK (leftmask&rightmask);
-      while (height--)
-      {
-         *dest = color;
-         dest += linewidth;
-      }
-      VGAMAPMASK (15);
-      return;
-   }
+    if (midbytes < 0) {
+        // all in one byte
+        VGAMAPMASK(leftmask & rightmask);
+        while (height--) {
+            *dest = color;
+            dest += linewidth;
+        }
+        VGAMAPMASK(15);
+        return;
+    }
 
-   while (height--)
-   {
-      VGAMAPMASK (leftmask);
-      *dest++ = color;
+    while (height--) {
+        VGAMAPMASK(leftmask);
+        *dest++ = color;
 
-      VGAMAPMASK (15);
-      memset (dest,color,midbytes);
-      dest += midbytes;
+        VGAMAPMASK(15);
+        memset(dest, color, midbytes);
+        dest += midbytes;
 
-      VGAMAPMASK (rightmask);
-      *dest = color;
+        VGAMAPMASK(rightmask);
+        *dest = color;
 
-      dest += linedelta;
-   }
+        dest += linedelta;
+    }
 
-   VGAMAPMASK(15);
+    VGAMAPMASK(15);
 #else
-	byte *dest = (byte *)(bufferofs+ylookup[y]+x);
-	
-	while (height--) {
-		memset(dest, color, width);
-		
-		dest += linewidth;
-	}
+    byte *dest = (byte *)(bufferofs + ylookup[y] + x);
+
+    while (height--) {
+        memset(dest, color, width);
+
+        dest += linewidth;
+    }
 #endif
 }
-
-
 
 //******************************************************************************
 //
@@ -395,13 +362,11 @@ void VL_Bar (int x, int y, int width, int height, int color)
 //
 //******************************************************************************
 
-void VWB_Bar (int x, int y, int width, int height, int color)
+void VWB_Bar(int x, int y, int width, int height, int color)
 {
-   if (((iGLOBAL_SCREENWIDTH > 320) && !StretchScreen) ||
-       VW_MarkUpdateBlock (x,y,x+width,y+height-1) )
-      VL_Bar (x, y, width, height, color);
+    if (((iGLOBAL_SCREENWIDTH > 320) && !StretchScreen) || VW_MarkUpdateBlock(x, y, x + width, y + height - 1))
+        VL_Bar(x, y, width, height, color);
 }
-
 
 //******************************************************************************
 //
@@ -409,76 +374,71 @@ void VWB_Bar (int x, int y, int width, int height, int color)
 //
 //******************************************************************************
 
-void VL_TBar (int x, int y, int width, int height)
+void VL_TBar(int x, int y, int width, int height)
 {
 #ifdef DOS
-   byte  *dest;
-   byte  pixel;
-   byte  readmask;
-   byte  writemask;
-   int   w = width;
+    byte *dest;
+    byte pixel;
+    byte readmask;
+    byte writemask;
+    int w = width;
 
-   while (height--)
-   {
-      width = w;
+    while (height--) {
+        width = w;
 
-      dest = (byte*)(bufferofs+ylookup[y]+(x>>2));
-      readmask    = (x&3);
-      writemask   = 1 << readmask;
+        dest = (byte *)(bufferofs + ylookup[y] + (x >> 2));
+        readmask = (x & 3);
+        writemask = 1 << readmask;
 
-      VGAREADMAP (readmask);
-      VGAMAPMASK (writemask);
+        VGAREADMAP(readmask);
+        VGAMAPMASK(writemask);
 
-      while (width--)
-      {
-         pixel = *dest;
+        while (width--) {
+            pixel = *dest;
 
-         pixel = *(colormap+(27<<8)+pixel);
+            pixel = *(colormap + (27 << 8) + pixel);
 
-         *dest = pixel;
+            *dest = pixel;
 
-         writemask <<= 1;
-         if (writemask == 16)
-         {
-            writemask = 1;
-            dest++;
-         }
+            writemask <<= 1;
+            if (writemask == 16) {
+                writemask = 1;
+                dest++;
+            }
 
-         readmask++;
-         if (readmask == 4)
-            readmask = 0;
+            readmask++;
+            if (readmask == 4)
+                readmask = 0;
 
-         VGAREADMAP (readmask);
-         VGAMAPMASK (writemask);
-      }
+            VGAREADMAP(readmask);
+            VGAMAPMASK(writemask);
+        }
 
-      y++;
-   }
+        y++;
+    }
 #else
-	int w = width;
-	
-	while (height--) {
-		byte *dest = (byte *)(bufferofs+ylookup[y]+x);
-		
-		width = w;
-		
-		while (width--) {
-			byte pixel = *dest;
-			
-			pixel = *(colormap+(27<<8)+pixel);
-			
-			*dest = pixel;
-			
-			dest++;
-		}
-		
-		y++;
-	}
-			
+    int w = width;
+
+    while (height--) {
+        byte *dest = (byte *)(bufferofs + ylookup[y] + x);
+
+        width = w;
+
+        while (width--) {
+            byte pixel = *dest;
+
+            pixel = *(colormap + (27 << 8) + pixel);
+
+            *dest = pixel;
+
+            dest++;
+        }
+
+        y++;
+    }
+
 #endif
 }
-
-
 
 //******************************************************************************
 //
@@ -486,12 +446,11 @@ void VL_TBar (int x, int y, int width, int height)
 //
 //******************************************************************************
 
-void VWB_TBar (int x, int y, int width, int height)
+void VWB_TBar(int x, int y, int width, int height)
 {
-   if (VW_MarkUpdateBlock (x,y,x+width,y+height-1))
-      VL_TBar (x, y, width, height);
+    if (VW_MarkUpdateBlock(x, y, x + width, y + height - 1))
+        VL_TBar(x, y, width, height);
 }
-
 
 //******************************************************************************
 //
@@ -499,49 +458,46 @@ void VWB_TBar (int x, int y, int width, int height)
 //
 //******************************************************************************
 
-void VL_Hlin (unsigned x, unsigned y, unsigned width, unsigned color)
+void VL_Hlin(unsigned x, unsigned y, unsigned width, unsigned color)
 {
 #ifdef DOS
-   unsigned xbyte;
-   byte     *dest;
-   byte     leftmask,
-            rightmask;
-   int      midbytes;
+    unsigned xbyte;
+    byte *dest;
+    byte leftmask, rightmask;
+    int midbytes;
 
-   xbyte =      x >> 2;
-   leftmask    = leftmasks[x&3];
-   rightmask   = rightmasks[(x+width-1)&3];
-   midbytes    = ((x+width+3)>>2) - xbyte - 2;
+    xbyte = x >> 2;
+    leftmask = leftmasks[x & 3];
+    rightmask = rightmasks[(x + width - 1) & 3];
+    midbytes = ((x + width + 3) >> 2) - xbyte - 2;
 
-   dest = (byte*)(bufferofs+ylookup[y]+xbyte);
+    dest = (byte *)(bufferofs + ylookup[y] + xbyte);
 
-   if (midbytes<0)
-   {
-     // all in one byte
-      VGAMAPMASK (leftmask & rightmask);
-      *dest = color;
-      VGAMAPMASK(15);
-      return;
-   }
+    if (midbytes < 0) {
+        // all in one byte
+        VGAMAPMASK(leftmask & rightmask);
+        *dest = color;
+        VGAMAPMASK(15);
+        return;
+    }
 
-   VGAMAPMASK (leftmask);
-   *dest++ = color;
+    VGAMAPMASK(leftmask);
+    *dest++ = color;
 
-   VGAMAPMASK (15);
-   memset (dest, color, midbytes);
-   dest += midbytes;
+    VGAMAPMASK(15);
+    memset(dest, color, midbytes);
+    dest += midbytes;
 
-   VGAMAPMASK (rightmask);
-   *dest = color;
+    VGAMAPMASK(rightmask);
+    *dest = color;
 
-   VGAMAPMASK (15);
+    VGAMAPMASK(15);
 #else
-	byte *dest = (byte*)(bufferofs+ylookup[y]+x);
-	
-	memset(dest, color, width);
+    byte *dest = (byte *)(bufferofs + ylookup[y] + x);
+
+    memset(dest, color, width);
 #endif
 }
-
 
 //******************************************************************************
 //
@@ -549,36 +505,32 @@ void VL_Hlin (unsigned x, unsigned y, unsigned width, unsigned color)
 //
 //******************************************************************************
 
-void VL_Vlin (int x, int y, int height, int color)
+void VL_Vlin(int x, int y, int height, int color)
 {
 #ifdef DOS
-   byte  *dest,
-         mask;
+    byte *dest, mask;
 
-   mask = pixmasks[x&3];
-   VGAMAPMASK (mask);
+    mask = pixmasks[x & 3];
+    VGAMAPMASK(mask);
 
-   dest = (byte *)(bufferofs+ylookup[y]+(x>>2));
+    dest = (byte *)(bufferofs + ylookup[y] + (x >> 2));
 
-   while (height--)
-   {
-      *dest = color;
-      dest += linewidth;
-   }
+    while (height--) {
+        *dest = color;
+        dest += linewidth;
+    }
 
-   VGAMAPMASK (15);
+    VGAMAPMASK(15);
 #else
-	byte *dest = (byte*)(bufferofs+ylookup[y]+x);
-	
-	while (height--) {
-		*dest = color;
-		
-		dest += linewidth;
-	}
+    byte *dest = (byte *)(bufferofs + ylookup[y] + x);
+
+    while (height--) {
+        *dest = color;
+
+        dest += linewidth;
+    }
 #endif
 }
-
-
 
 //******************************************************************************
 //
@@ -586,12 +538,11 @@ void VL_Vlin (int x, int y, int height, int color)
 //
 //******************************************************************************
 
-void VWB_Hlin (int x1, int x2, int y, int color)
+void VWB_Hlin(int x1, int x2, int y, int color)
 {
-   if (VW_MarkUpdateBlock (x1,y,x2,y))
-      VW_Hlin(x1,x2,y,color);
+    if (VW_MarkUpdateBlock(x1, y, x2, y))
+        VW_Hlin(x1, x2, y, color);
 }
-
 
 //******************************************************************************
 //
@@ -599,14 +550,11 @@ void VWB_Hlin (int x1, int x2, int y, int color)
 //
 //******************************************************************************
 
-void VWB_Vlin (int y1, int y2, int x, int color)
+void VWB_Vlin(int y1, int y2, int x, int color)
 {
-   if (VW_MarkUpdateBlock (x,y1,x,y2))
-      VW_Vlin(y1,y2,x,color);
+    if (VW_MarkUpdateBlock(x, y1, x, y2))
+        VW_Vlin(y1, y2, x, color);
 }
-
-
-
 
 //******************************************************************************
 //
@@ -614,68 +562,63 @@ void VWB_Vlin (int y1, int y2, int x, int color)
 //
 //******************************************************************************
 
-void VL_THlin (unsigned x, unsigned y, unsigned width, boolean up)
+void VL_THlin(unsigned x, unsigned y, unsigned width, boolean up)
 {
 #ifdef DOS
-   byte     *dest;
-   byte     pixel;
-   byte     readmask;
-   byte     writemask;
+    byte *dest;
+    byte pixel;
+    byte readmask;
+    byte writemask;
 
+    readmask = (x & 3);
+    writemask = 1 << readmask;
 
-   readmask    = (x&3);
-   writemask   = 1 << readmask;
+    dest = (byte *)(bufferofs + ylookup[y] + (x >> 2));
 
-   dest = (byte*)(bufferofs+ylookup[y]+(x>>2));
+    VGAREADMAP(readmask);
+    VGAMAPMASK(writemask);
 
-   VGAREADMAP (readmask);
-   VGAMAPMASK (writemask);
+    while (width--) {
+        pixel = *dest;
 
-   while (width--)
-   {
-      pixel = *dest;
+        if (up)
+            pixel = *(colormap + (13 << 8) + pixel);
+        else
+            pixel = *(colormap + (27 << 8) + pixel);
 
-      if (up)
-         pixel = *(colormap+(13<<8)+pixel);
-      else
-         pixel = *(colormap+(27<<8)+pixel);
+        *dest = pixel;
 
-      *dest = pixel;
+        writemask <<= 1;
+        if (writemask == 16) {
+            writemask = 1;
+            dest++;
+        }
 
-      writemask <<= 1;
-      if (writemask == 16)
-      {
-         writemask = 1;
-         dest++;
-      }
+        readmask++;
+        if (readmask == 4)
+            readmask = 0;
 
-      readmask++;
-      if (readmask == 4)
-         readmask = 0;
-
-      VGAREADMAP (readmask);
-      VGAMAPMASK (writemask);
-   }
+        VGAREADMAP(readmask);
+        VGAMAPMASK(writemask);
+    }
 #else
-	byte *dest = (byte*)(bufferofs+ylookup[y]+x);
-	
-	while (width--) {
-		byte pixel = *dest;
+    byte *dest = (byte *)(bufferofs + ylookup[y] + x);
 
-		if (up) {
-			pixel = *(colormap+(13<<8)+pixel);
-		} else {
-			pixel = *(colormap+(27<<8)+pixel);
-		}
-		
-		*dest = pixel;
-		
-		dest++;
-	}
+    while (width--) {
+        byte pixel = *dest;
+
+        if (up) {
+            pixel = *(colormap + (13 << 8) + pixel);
+        } else {
+            pixel = *(colormap + (27 << 8) + pixel);
+        }
+
+        *dest = pixel;
+
+        dest++;
+    }
 #endif
 }
-
-
 
 //******************************************************************************
 //
@@ -683,57 +626,52 @@ void VL_THlin (unsigned x, unsigned y, unsigned width, boolean up)
 //
 //******************************************************************************
 
-void VL_TVlin (unsigned x, unsigned y, unsigned height, boolean up)
+void VL_TVlin(unsigned x, unsigned y, unsigned height, boolean up)
 {
 #ifdef DOS
-   byte     *dest;
-   byte     pixel;
-   byte     readmask;
-   byte     writemask;
+    byte *dest;
+    byte pixel;
+    byte readmask;
+    byte writemask;
 
+    readmask = (x & 3);
+    writemask = 1 << readmask;
 
+    dest = (byte *)(bufferofs + ylookup[y] + (x >> 2));
 
-   readmask    = (x&3);
-   writemask   = 1 << readmask;
+    VGAREADMAP(readmask);
+    VGAMAPMASK(writemask);
 
-   dest = (byte*)(bufferofs+ylookup[y]+(x>>2));
+    while (height--) {
+        pixel = *dest;
 
-   VGAREADMAP (readmask);
-   VGAMAPMASK (writemask);
+        if (up)
+            pixel = *(colormap + (13 << 8) + pixel);
+        else
+            pixel = *(colormap + (27 << 8) + pixel);
 
-   while (height--)
-   {
-      pixel = *dest;
+        *dest = pixel;
 
-      if (up)
-         pixel = *(colormap+(13<<8)+pixel);
-      else
-         pixel = *(colormap+(27<<8)+pixel);
-
-      *dest = pixel;
-
-      dest += linewidth;
-   }
+        dest += linewidth;
+    }
 #else
-	byte *dest = (byte*)(bufferofs+ylookup[y]+x);
-	
-	while (height--) {
-		byte pixel = *dest;
+    byte *dest = (byte *)(bufferofs + ylookup[y] + x);
 
-		if (up) {
-			pixel = *(colormap+(13<<8)+pixel);
-		} else {
-			pixel = *(colormap+(27<<8)+pixel);
-		}
-		
-		*dest = pixel;
-		
-		dest += linewidth;
-	}
+    while (height--) {
+        byte pixel = *dest;
+
+        if (up) {
+            pixel = *(colormap + (13 << 8) + pixel);
+        } else {
+            pixel = *(colormap + (27 << 8) + pixel);
+        }
+
+        *dest = pixel;
+
+        dest += linewidth;
+    }
 #endif
 }
-
-
 
 //******************************************************************************
 //
@@ -741,12 +679,11 @@ void VL_TVlin (unsigned x, unsigned y, unsigned height, boolean up)
 //
 //******************************************************************************
 
-void VWB_THlin (int x1, int x2, int y, boolean up)
+void VWB_THlin(int x1, int x2, int y, boolean up)
 {
-   if (VW_MarkUpdateBlock (x1,y,x2,y))
-      VW_THlin (x1,x2,y,up);
+    if (VW_MarkUpdateBlock(x1, y, x2, y))
+        VW_THlin(x1, x2, y, up);
 }
-
 
 //******************************************************************************
 //
@@ -754,13 +691,11 @@ void VWB_THlin (int x1, int x2, int y, boolean up)
 //
 //******************************************************************************
 
-void VWB_TVlin (int y1, int y2, int x, boolean up)
+void VWB_TVlin(int y1, int y2, int x, boolean up)
 {
-   if (VW_MarkUpdateBlock (x,y1,x,y2))
-      VW_TVlin (y1,y2,x,up);
+    if (VW_MarkUpdateBlock(x, y1, x, y2))
+        VW_TVlin(y1, y2, x, up);
 }
-
-
 
 /*
 ================================================================================
@@ -769,7 +704,6 @@ void VWB_TVlin (int y1, int y2, int x, boolean up)
 
 ================================================================================
 */
-
 
 //******************************************************************************
 //
@@ -780,61 +714,49 @@ void VWB_TVlin (int y1, int y2, int x, boolean up)
 //
 //******************************************************************************
 
-int VW_MarkUpdateBlock (int x1, int y1, int x2, int y2)
+int VW_MarkUpdateBlock(int x1, int y1, int x2, int y2)
 {
-   int   x,
-         y,
-         xt1,
-         yt1,
-         xt2,
-         yt2,
-         nextline;
-   byte  *mark;
+    int x, y, xt1, yt1, xt2, yt2, nextline;
+    byte *mark;
 
-   xt1 = x1 >> PIXTOBLOCK;
-   yt1 = y1 >> PIXTOBLOCK;
+    xt1 = x1 >> PIXTOBLOCK;
+    yt1 = y1 >> PIXTOBLOCK;
 
-   xt2 = x2 >> PIXTOBLOCK;
-   yt2 = y2 >> PIXTOBLOCK;
+    xt2 = x2 >> PIXTOBLOCK;
+    yt2 = y2 >> PIXTOBLOCK;
 
-   if (xt1 < 0)
-      xt1 = 0;
-   else
-      if (xt1 >= UPDATEWIDE)
-         return 0;
+    if (xt1 < 0)
+        xt1 = 0;
+    else if (xt1 >= UPDATEWIDE)
+        return 0;
 
-   if (yt1 < 0)
-      yt1 = 0;
-   else
-      if (yt1 > UPDATEHIGH)
-         return 0;
+    if (yt1 < 0)
+        yt1 = 0;
+    else if (yt1 > UPDATEHIGH)
+        return 0;
 
-   if (xt2 < 0)
-      return 0;
-   else
-      if (xt2 >= UPDATEWIDE)
-         xt2 = UPDATEWIDE-1;
+    if (xt2 < 0)
+        return 0;
+    else if (xt2 >= UPDATEWIDE)
+        xt2 = UPDATEWIDE - 1;
 
-   if (yt2 < 0)
-      return 0;
-   else
-      if (yt2 >= UPDATEHIGH)
-         yt2 = UPDATEHIGH-1;
+    if (yt2 < 0)
+        return 0;
+    else if (yt2 >= UPDATEHIGH)
+        yt2 = UPDATEHIGH - 1;
 
-   mark = updateptr + uwidthtable[yt1] + xt1;
-   nextline = UPDATEWIDE - (xt2-xt1) - 1;
+    mark = updateptr + uwidthtable[yt1] + xt1;
+    nextline = UPDATEWIDE - (xt2 - xt1) - 1;
 
-   for (y = yt1; y <= yt2; y++)
-   {
-      for (x = xt1; x <= xt2; x++)
-         *mark++ = 1;                  // this tile will need to be updated
+    for (y = yt1; y <= yt2; y++) {
+        for (x = xt1; x <= xt2; x++)
+            *mark++ = 1;  // this tile will need to be updated
 
-      mark += nextline;
-   }
+        mark += nextline;
+    }
 
-   return 1;
+    return 1;
 }
-
 
 //******************************************************************************
 //
@@ -842,10 +764,9 @@ int VW_MarkUpdateBlock (int x1, int y1, int x2, int y2)
 //
 //******************************************************************************
 
-
-void VW_UpdateScreen (void)
+void VW_UpdateScreen(void)
 {
-   VH_UpdateScreen ();
+    VH_UpdateScreen();
 }
 
 //===========================================================================
@@ -860,51 +781,48 @@ void VW_UpdateScreen (void)
 =================
 */
 
-void VL_FadeOut (int start, int end, int red, int green, int blue, int steps)
+void VL_FadeOut(int start, int end, int red, int green, int blue, int steps)
 {
-   int      i,j,orig,delta;
-   byte  *origptr, *newptr;
+    int i, j, orig, delta;
+    byte *origptr, *newptr;
 
-   if (screenfaded)
-      return;
+    if (screenfaded)
+        return;
 
-   WaitVBL ();
-   VL_GetPalette (palette1);
-   memcpy (palette2, palette1, 768);
+    WaitVBL();
+    VL_GetPalette(palette1);
+    memcpy(palette2, palette1, 768);
 
-//
-// fade through intermediate frames
-//
-   for (i = 0; i < steps; i++)
-   {
-      origptr = &palette1[start *3];
-      newptr = &palette2[start *3];
+    //
+    // fade through intermediate frames
+    //
+    for (i = 0; i < steps; i++) {
+        origptr = &palette1[start * 3];
+        newptr = &palette2[start * 3];
 
-      for (j = start; j <= end; j++)
-      {
-         orig = *origptr++;
-         delta = red-orig;
-         *newptr++ = orig + delta * i / steps;
-         orig = *origptr++;
-         delta = green-orig;
-         *newptr++ = orig + delta * i / steps;
-         orig = *origptr++;
-         delta = blue-orig;
-         *newptr++ = orig + delta * i / steps;
-      }
+        for (j = start; j <= end; j++) {
+            orig = *origptr++;
+            delta = red - orig;
+            *newptr++ = orig + delta * i / steps;
+            orig = *origptr++;
+            delta = green - orig;
+            *newptr++ = orig + delta * i / steps;
+            orig = *origptr++;
+            delta = blue - orig;
+            *newptr++ = orig + delta * i / steps;
+        }
 
-      WaitVBL ();
-      VL_SetPalette (palette2);
-   }
+        WaitVBL();
+        VL_SetPalette(palette2);
+    }
 
-//
-// final color
-//
-   VL_FillPalette (red,green,blue);
+    //
+    // final color
+    //
+    VL_FillPalette(red, green, blue);
 
-   screenfaded = true;
+    screenfaded = true;
 }
-
 
 /*
 =================
@@ -916,61 +834,55 @@ void VL_FadeOut (int start, int end, int red, int green, int blue, int steps)
 =================
 */
 
-void VL_FadeToColor (int time, int red, int green, int blue)
+void VL_FadeToColor(int time, int red, int green, int blue)
 {
-   int      i,j,orig,delta;
-   byte  *origptr, *newptr;
-   int dmax,dmin;
+    int i, j, orig, delta;
+    byte *origptr, *newptr;
+    int dmax, dmin;
 
-   if (screenfaded)
-      return;
+    if (screenfaded)
+        return;
 
-   WaitVBL ();
-   VL_GetPalette (palette1);
-   memcpy (palette2, palette1, 768);
+    WaitVBL();
+    VL_GetPalette(palette1);
+    memcpy(palette2, palette1, 768);
 
-   dmax=(maxshade<<16)/time;
-   dmin=(minshade<<16)/time;
-//
-// fade through intermediate frames
-//
-   for (i = 0; i < time; i+=tics)
-   {
-      origptr = palette1;
-      newptr = palette2;
+    dmax = (maxshade << 16) / time;
+    dmin = (minshade << 16) / time;
+    //
+    // fade through intermediate frames
+    //
+    for (i = 0; i < time; i += tics) {
+        origptr = palette1;
+        newptr = palette2;
 
-      for (j = 0; j <= 255; j++)
-      {
-         orig = *origptr++;
-         delta = ((red>>2)-orig)<<16;
-         *newptr++ = orig + FixedMul(delta/time,i);
-         orig = *origptr++;
-         delta = ((green>>2)-orig)<<16;
-         *newptr++ = orig + FixedMul(delta/time,i);
-         orig = *origptr++;
-         delta = ((blue>>2)-orig)<<16;
-         *newptr++ = orig + FixedMul(delta/time,i);
-      }
+        for (j = 0; j <= 255; j++) {
+            orig = *origptr++;
+            delta = ((red >> 2) - orig) << 16;
+            *newptr++ = orig + FixedMul(delta / time, i);
+            orig = *origptr++;
+            delta = ((green >> 2) - orig) << 16;
+            *newptr++ = orig + FixedMul(delta / time, i);
+            orig = *origptr++;
+            delta = ((blue >> 2) - orig) << 16;
+            *newptr++ = orig + FixedMul(delta / time, i);
+        }
 
-      maxshade=(dmax*(time-i))>>16;
-      minshade=(dmin*(time-i))>>16;
-      WaitVBL ();
-      VL_SetPalette (palette2);
-      ThreeDRefresh();
-      CalcTics();
+        maxshade = (dmax * (time - i)) >> 16;
+        minshade = (dmin * (time - i)) >> 16;
+        WaitVBL();
+        VL_SetPalette(palette2);
+        ThreeDRefresh();
+        CalcTics();
+    }
 
-   }
+    //
+    // final color
+    //
+    VL_FillPalette(red >> 2, green >> 2, blue >> 2);
 
-//
-// final color
-//
-   VL_FillPalette (red>>2,green>>2,blue>>2);
-
-   screenfaded = true;
+    screenfaded = true;
 }
-
-
-
 
 /*
 =================
@@ -980,42 +892,38 @@ void VL_FadeToColor (int time, int red, int green, int blue)
 =================
 */
 
-void VL_FadeIn (int start, int end, byte *palette, int steps)
+void VL_FadeIn(int start, int end, byte *palette, int steps)
 {
-   int      i,j,delta;
+    int i, j, delta;
 
-   WaitVBL ();
-   VL_GetPalette (palette1);
+    WaitVBL();
+    VL_GetPalette(palette1);
 
-   memcpy (palette2, palette1, sizeof(palette1));
+    memcpy(palette2, palette1, sizeof(palette1));
 
-   start *= 3;
-   end = end*3+2;
+    start *= 3;
+    end = end * 3 + 2;
 
-//
-// fade through intermediate frames
-//
-   for (i=0;i<steps;i++)
-   {
-      for (j=start;j<=end;j++)
-      {
-         delta = palette[j]-palette1[j];
-         palette2[j] = palette1[j] + delta * i / steps;
-      }
+    //
+    // fade through intermediate frames
+    //
+    for (i = 0; i < steps; i++) {
+        for (j = start; j <= end; j++) {
+            delta = palette[j] - palette1[j];
+            palette2[j] = palette1[j] + delta * i / steps;
+        }
 
-      WaitVBL ();
-      VL_SetPalette (palette2);
-   }
+        WaitVBL();
+        VL_SetPalette(palette2);
+    }
 
-//
-// final color
-//
-   VL_SetPalette (palette);    
-   VW_UpdateScreen();
-   screenfaded = false;
+    //
+    // final color
+    //
+    VL_SetPalette(palette);
+    VW_UpdateScreen();
+    screenfaded = false;
 }
-
-
 
 //******************************************************************************
 //
@@ -1023,20 +931,19 @@ void VL_FadeIn (int start, int end, byte *palette, int steps)
 //
 //******************************************************************************
 
-void SwitchPalette (byte * newpal, int steps)
+void SwitchPalette(byte *newpal, int steps)
 {
-   byte *temp;
+    byte *temp;
 
-   VL_FadeOut(0,255,0,0,0,steps>>1);
+    VL_FadeOut(0, 255, 0, 0, 0, steps >> 1);
 
-   temp = bufferofs;
-   bufferofs = displayofs;
-   VL_Bar (0, 0, 320, 200, 0);
-   bufferofs = temp;
+    temp = bufferofs;
+    bufferofs = displayofs;
+    VL_Bar(0, 0, 320, 200, 0);
+    bufferofs = temp;
 
-   VL_FadeIn(0,255,newpal,steps>>1);
+    VL_FadeIn(0, 255, newpal, steps >> 1);
 }
-
 
 #if 0
 
@@ -1083,9 +990,7 @@ void VL_ColorBorder (int color)
    bordercolor = color;
 }
 
-
 #endif
-
 
 //==========================================================================
 
@@ -1097,63 +1002,56 @@ void VL_ColorBorder (int color)
 //
 //****************************************************************************
 
-void VL_DecompressLBM (lbm_t *lbminfo, boolean flip)
+void VL_DecompressLBM(lbm_t *lbminfo, boolean flip)
 {
-   int  count;
-   byte b, rept;
-   byte *source = (byte *)&lbminfo->data;
-   byte *buf;
-   int  ht = lbminfo->height;
-   byte pal[768];
-   
-   EnableScreenStretch();
-   
-   memcpy(&pal[0],lbminfo->palette,768);
+    int count;
+    byte b, rept;
+    byte *source = (byte *)&lbminfo->data;
+    byte *buf;
+    int ht = lbminfo->height;
+    byte pal[768];
 
-   VL_NormalizePalette (&pal[0]);
+    EnableScreenStretch();
 
-   VW_MarkUpdateBlock (0, 0, 320, 200);
+    memcpy(&pal[0], lbminfo->palette, 768);
 
-   buf = (byte *)bufferofs;
+    VL_NormalizePalette(&pal[0]);
 
-   while (ht--)
-   {
-      count = 0;
+    VW_MarkUpdateBlock(0, 0, 320, 200);
 
-   	do
-	   {
-		   rept = *source++;
+    buf = (byte *)bufferofs;
 
-   		if (rept > 0x80)
-	   	{
-		   	rept = (rept^0xff)+2;
-			   b = *source++;
-   			memset (buf, b, rept);
-	   		buf += rept;
-		   }
-   		else if (rept < 0x80)
-	   	{
-		   	rept++;
-			   memcpy (buf, source, rept);
-   			buf += rept;
-	   		source += rept;
-		   }
-   		else
-	   		rept = 0;               // rept of 0x80 is NOP
+    while (ht--) {
+        count = 0;
 
-		   count += rept;
+        do {
+            rept = *source++;
 
-   	} while (count < lbminfo->width);
-	  if (iGLOBAL_SCREENWIDTH > 320){
-		 buf += (iGLOBAL_SCREENWIDTH-320); //eg 800 - 320)
-	  }
-   }
+            if (rept > 0x80) {
+                rept = (rept ^ 0xff) + 2;
+                b = *source++;
+                memset(buf, b, rept);
+                buf += rept;
+            } else if (rept < 0x80) {
+                rept++;
+                memcpy(buf, source, rept);
+                buf += rept;
+                source += rept;
+            } else
+                rept = 0;  // rept of 0x80 is NOP
 
-   if (flip==true)
-      VW_UpdateScreen ();
+            count += rept;
 
-   VL_FadeIn (0, 255, &pal[0], 15);
+        } while (count < lbminfo->width);
+        if (iGLOBAL_SCREENWIDTH > 320) {
+            buf += (iGLOBAL_SCREENWIDTH - 320);  // eg 800 - 320)
+        }
+    }
 
+    if (flip == true)
+        VW_UpdateScreen();
+
+    VL_FadeIn(0, 255, &pal[0], 15);
 }
 
 //****************************************************************************
@@ -1162,46 +1060,47 @@ void VL_DecompressLBM (lbm_t *lbminfo, boolean flip)
 //
 //****************************************************************************
 
-void SetBorderColor (int color)
+void SetBorderColor(int color)
 {
-   // bna section start
+    // bna section start
 
-   byte  *cnt,*Ycnt,*b;
+    byte *cnt, *Ycnt, *b;
 
-   b=(byte *)bufferofs;
+    b = (byte *)bufferofs;
 
-   // color 56 could be used
+    // color 56 could be used
 
-   //paint top red line
-   for (cnt=b;cnt<b+viewwidth;cnt++){
-	for (Ycnt=cnt;Ycnt<cnt+(5*iGLOBAL_SCREENWIDTH);Ycnt+=iGLOBAL_SCREENWIDTH){
-			*Ycnt = color;
-		}
-   }
-   //paint left red line
-   for (cnt=b;cnt<b+5;cnt++){
-	for (Ycnt=cnt;Ycnt<cnt+(viewheight*iGLOBAL_SCREENWIDTH);Ycnt+=iGLOBAL_SCREENWIDTH){
-			*Ycnt = color;
-		}
-   }
-   //paint right red line
-   for (cnt=b+(viewwidth-5);cnt<b+viewwidth;cnt++){
-	for (Ycnt=cnt;Ycnt<cnt+(viewheight*iGLOBAL_SCREENWIDTH);Ycnt+=iGLOBAL_SCREENWIDTH){
-			*Ycnt = color;
-		}
-   }
-   //paint lower red line
-   for (cnt=b+((viewheight-5)*iGLOBAL_SCREENWIDTH);cnt<b+((viewheight-5)*iGLOBAL_SCREENWIDTH)+viewwidth;cnt++){
-		for (Ycnt=cnt;Ycnt<b+(viewheight*iGLOBAL_SCREENWIDTH);Ycnt+=iGLOBAL_SCREENWIDTH){
-			 *Ycnt = color;
-		}
-   }
-   // bna section end
+    // paint top red line
+    for (cnt = b; cnt < b + viewwidth; cnt++) {
+        for (Ycnt = cnt; Ycnt < cnt + (5 * iGLOBAL_SCREENWIDTH); Ycnt += iGLOBAL_SCREENWIDTH) {
+            *Ycnt = color;
+        }
+    }
+    // paint left red line
+    for (cnt = b; cnt < b + 5; cnt++) {
+        for (Ycnt = cnt; Ycnt < cnt + (viewheight * iGLOBAL_SCREENWIDTH); Ycnt += iGLOBAL_SCREENWIDTH) {
+            *Ycnt = color;
+        }
+    }
+    // paint right red line
+    for (cnt = b + (viewwidth - 5); cnt < b + viewwidth; cnt++) {
+        for (Ycnt = cnt; Ycnt < cnt + (viewheight * iGLOBAL_SCREENWIDTH); Ycnt += iGLOBAL_SCREENWIDTH) {
+            *Ycnt = color;
+        }
+    }
+    // paint lower red line
+    for (cnt = b + ((viewheight - 5) * iGLOBAL_SCREENWIDTH);
+         cnt < b + ((viewheight - 5) * iGLOBAL_SCREENWIDTH) + viewwidth; cnt++) {
+        for (Ycnt = cnt; Ycnt < b + (viewheight * iGLOBAL_SCREENWIDTH); Ycnt += iGLOBAL_SCREENWIDTH) {
+            *Ycnt = color;
+        }
+    }
+    // bna section end
 
 #ifdef DOS
-   inp  (STATUS_REGISTER_1);
-   outp (ATR_INDEX,0x31);
-   outp (ATR_INDEX,color);
+    inp(STATUS_REGISTER_1);
+    outp(ATR_INDEX, 0x31);
+    outp(ATR_INDEX, color);
 #endif
 }
 
@@ -1211,19 +1110,18 @@ void SetBorderColor (int color)
 //
 //****************************************************************************
 
-void SetBorderColorInterrupt (int color)
+void SetBorderColorInterrupt(int color)
 {
 #ifdef DOS
-   union REGS regs;
+    union REGS regs;
 
-   regs.w.ax = 0x1001;
-   regs.w.bx = color<<8;
-   int386(0x10,&regs,&regs);
+    regs.w.ax = 0x1001;
+    regs.w.bx = color << 8;
+    int386(0x10, &regs, &regs);
 #else
-	STUB_FUNCTION;
+    STUB_FUNCTION;
 #endif
 }
-
 
 //****************************************************************************
 //
@@ -1231,10 +1129,10 @@ void SetBorderColorInterrupt (int color)
 //
 //****************************************************************************
 
-void VL_DrawPostPic (int lumpnum)
+void VL_DrawPostPic(int lumpnum)
 {
-   DrawPostPic(lumpnum);
-   VW_MarkUpdateBlock (0, 0, 319, 199);
+    DrawPostPic(lumpnum);
+    VW_MarkUpdateBlock(0, 0, 319, 199);
 }
 
 //****************************************************************************
@@ -1243,58 +1141,47 @@ void VL_DrawPostPic (int lumpnum)
 //
 //****************************************************************************
 
-void VL_DrawLine (int x1, int y1, int x2, int y2, byte color)
+void VL_DrawLine(int x1, int y1, int x2, int y2, byte color)
 {
-   int dx;
-   int dy;
-   int xinc;
-   int yinc;
-   int count;
+    int dx;
+    int dy;
+    int xinc;
+    int yinc;
+    int count;
 
-   dx=(x2-x1);
-   dy=(y2-y1);
-   if (abs(dy)>=abs(dx))
-      {
-      count=abs(dy);
-      yinc=(dy<<16)/count;
-      if (dy==0)
-         {
-         return;
-         }
-      else
-         {
-         xinc=(dx<<16)/count;
-         }
-      }
-   else
-      {
-      count=abs(dx);
-      xinc=(dx<<16)/count;
-      if (dx==0)
-         {
-         return;
-         }
-      else
-         {
-         yinc=(dy<<16)/count;
-         }
-      }
-   x1<<=16;
-   y1<<=16;
-   while (count>0)
-      {
+    dx = (x2 - x1);
+    dy = (y2 - y1);
+    if (abs(dy) >= abs(dx)) {
+        count = abs(dy);
+        yinc = (dy << 16) / count;
+        if (dy == 0) {
+            return;
+        } else {
+            xinc = (dx << 16) / count;
+        }
+    } else {
+        count = abs(dx);
+        xinc = (dx << 16) / count;
+        if (dx == 0) {
+            return;
+        } else {
+            yinc = (dy << 16) / count;
+        }
+    }
+    x1 <<= 16;
+    y1 <<= 16;
+    while (count > 0) {
 #ifdef DOS
-      VGAWRITEMAP((x1>>16)&3);
-      *((byte *)bufferofs+(x1>>18)+(ylookup[y1>>16]))=color;
+        VGAWRITEMAP((x1 >> 16) & 3);
+        *((byte *)bufferofs + (x1 >> 18) + (ylookup[y1 >> 16])) = color;
 #else
-      *((byte *)bufferofs+(x1>>16)+(ylookup[y1>>16]))=color;
+        *((byte *)bufferofs + (x1 >> 16) + (ylookup[y1 >> 16])) = color;
 #endif
-      x1+=xinc;
-      y1+=yinc;
-      count--;
-      }
+        x1 += xinc;
+        y1 += yinc;
+        count--;
+    }
 }
-
 
 //******************************************************************************
 //
@@ -1302,42 +1189,40 @@ void VL_DrawLine (int x1, int y1, int x2, int y2, byte color)
 //
 //******************************************************************************
 
-void DrawXYPic (int x, int y, int shapenum)
+void DrawXYPic(int x, int y, int shapenum)
 {
-   byte *buffer;
-   byte *buf;
-   int xx,yy;
-   int plane;
-   byte *src;
-   pic_t *p;
+    byte *buffer;
+    byte *buf;
+    int xx, yy;
+    int plane;
+    byte *src;
+    pic_t *p;
 
-   p = (pic_t *) W_CacheLumpNum (shapenum, PU_CACHE, Cvt_pic_t, 1);
+    p = (pic_t *)W_CacheLumpNum(shapenum, PU_CACHE, Cvt_pic_t, 1);
 
-   if ((x<0) || ((x+(p->width<<2))>=320))
-      Error ("DrawXYPic: x is out of range\n");
-   if ((y<0) || ((y+p->height)>=200))
-      Error ("DrawXYPic: y is out of range\n");
+    if ((x < 0) || ((x + (p->width << 2)) >= 320))
+        Error("DrawXYPic: x is out of range\n");
+    if ((y < 0) || ((y + p->height) >= 200))
+        Error("DrawXYPic: y is out of range\n");
 
 #ifdef DOS
-   buffer = (byte*)bufferofs+(x>>2)+ylookup[y];
+    buffer = (byte *)bufferofs + (x >> 2) + ylookup[y];
 #else
-   buffer = (byte*)bufferofs+ylookup[y];
+    buffer = (byte *)bufferofs + ylookup[y];
 #endif
 
-   src=(byte *)&p->data;
+    src = (byte *)&p->data;
 
-   for (plane=x;plane<x+4;plane++)
-      {
-      VGAWRITEMAP((plane&3));
-      for (yy = 0; yy < p->height; yy++)
-         {
-         buf=buffer+ylookup[yy];
-         for (xx = 0; xx < p->width; xx++,buf++)
+    for (plane = x; plane < x + 4; plane++) {
+        VGAWRITEMAP((plane & 3));
+        for (yy = 0; yy < p->height; yy++) {
+            buf = buffer + ylookup[yy];
+            for (xx = 0; xx < p->width; xx++, buf++)
 #ifdef DOS
-            *(buf)=*(src++);
+                *(buf) = *(src++);
 #else
-            *(buf+plane+xx*4)=*(src++);
+                *(buf + plane + xx * 4) = *(src++);
 #endif
-         }
-      }
+        }
+    }
 }
