@@ -28,4 +28,5 @@
                                REG(a6, struct ExecBase *SysBase));
 */
 
-extern UBYTE mmu_mark(void *start,ULONG length,ULONG cm,struct ExecBase *SysBase);
+// Disassmbling m_mmu.o shows that mmu_mark is using stack arguments
+extern UBYTE __stdargs mmu_mark(void *start, ULONG length, ULONG cm, struct ExecBase *SysBase);
