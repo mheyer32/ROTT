@@ -155,16 +155,16 @@ int ULongDiv(int eins, int zwei)
     return eins;
 }
 
-fixed FixedScale(fixed orig, fixed factor, fixed divisor)
-{
-    __int64 x = orig;
-    __int64 y = factor;
-    __int64 z = divisor;
+//fixed FixedScale(fixed orig, fixed factor, fixed divisor)
+//{
+//    __int64 x = orig;
+//    __int64 y = factor;
+//    __int64 z = divisor;
 
-    __int64 w = (x * y) / z;
+//    __int64 w = (x * y) / z;
 
-    return (w)&0xffffffff;
-}
+//    return (w)&0xffffffff;
+//}
 
 #endif
 

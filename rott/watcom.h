@@ -47,7 +47,17 @@ fixed FixedMul060(fixed eins, fixed zwei);
 fixed FixedDiv060(fixed eins, fixed zwei);
 #endif
 
-fixed FixedScale(fixed orig, fixed factor, fixed divisor);
+// FIXME: not 060 friendly
+inline static fixed FixedScale(fixed orig, fixed factor, fixed divisor)
+{
+    __asm __volatile(
+        "muls.l %1,%1:%0 \n\t"
+        "divs.l %4:%1,%0 \n\t"
+        : "=d"(orig), "=d"(factor)
+        : "0"(orig), "1"(factor), "d"(divisor)
+        );
+    return orig;
+}
 
 // FIXME: not 060 friendly
 inline static fixed FixedMulShift(fixed eins, fixed zwei, int shift)
