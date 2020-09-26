@@ -51,7 +51,7 @@ fixed_t FixedMul040(fixed_t eins, fixed_t zwei)
 {
     __asm __volatile(
         "muls.l %1,%1:%0 \n\t"
-        "move %1,%0 \n\t"
+        "move.w %1,%0 \n\t"
         "swap %0 "
 
         : "=d"(eins), "=d"(zwei)
@@ -153,16 +153,6 @@ int ULongDiv(int eins, int zwei)
                      : "0"(eins), "d"(zwei));
 
     return eins;
-}
-
-fixed FixedMulShift(fixed eins, fixed zwei, fixed shift)
-{
-    __asm __volatile("muls.l %1,%1:%0 \n\t"
-
-                     : "=d"(eins), "=d"(zwei)
-                     : "0"(eins), "1"(zwei));
-
-    return (((unsigned __int64)eins) >> shift) & 0xffffffff;
 }
 
 fixed FixedScale(fixed orig, fixed factor, fixed divisor)
