@@ -681,20 +681,35 @@ void DrawPlanes(void)
 }
 
 #ifndef DOS
-void DrawRow(int count, byte *dest, byte *src)
-{
-    unsigned frac, fracstep;
-    int coord;
 
-    frac = (mr_yfrac << 16) + (mr_xfrac & 0xffff);
+typedef union
+{
+    int f;
+    struct
+    {
+        unsigned int x : 7;
+        unsigned int xfrac : 9;
+        unsigned int y : 7;
+        unsigned int yfrac;
+    };
+} RowFrac;
+
+void DrawRow(short count, byte *dest, byte *src)
+{
+    RowFrac  frac;
+    unsigned fracstep;
+
+    frac.f = (mr_yfrac << 16) + (mr_xfrac & 0xffff);
     fracstep = (mr_ystep << 16) + (mr_xstep & 0xffff);
+
+    const byte * const shade = shadingtable;
 
     while (count--) {
         /* extract the x/y coordinates */
-        coord = ((frac >> (32 - 7)) | ((frac >> (32 - 23)) << 7)) & 16383;
-
+        // short coord = ((frac.f >> (32 - 7)) | ((frac.f >> (32 - 23)) << 7)) & 16383;
+        short coord =  frac.x | frac.y << 7;
         *dest++ = shadingtable[src[coord]];
-        frac += fracstep;
+        frac.f += fracstep;
     }
 }
 #endif
