@@ -47,6 +47,7 @@ fixed FixedMul060(fixed eins, fixed zwei);
 fixed FixedDiv060(fixed eins, fixed zwei);
 #endif
 
+#ifndef __mc68060__
 // FIXME: not 060 friendly
 inline static fixed FixedScale(fixed orig, fixed factor, fixed divisor)
 {
@@ -69,7 +70,10 @@ inline static fixed FixedMulShift(fixed eins, fixed zwei, int shift)
         );
     return ((unsigned int)eins >> shift) | ((unsigned int)zwei << (32- shift)) ;
 }
-
+#else
+fixed FixedScale(fixed orig, fixed factor, fixed divisor);
+fixed FixedMulShift(fixed eins, fixed zwei, int shift);
+#endif
 
 #ifdef __WATCOMC__
 #pragma aux FixedMul = "imul ebx", \

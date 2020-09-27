@@ -17,7 +17,7 @@ PHXASS := vasmm68k_mot
 PREFIX = $(shell ./getprefix.sh "$(CC)")
 
 #-Wstrict-prototypes
-CFLAGS += -m68030 -mregparm=4 -noixemul
+CFLAGS += -mregparm=4 -noixemul
 CFLAGS += -Werror -Wimplicit -Wdouble-promotion -fstrict-aliasing
 
 LDFLAGS = -noixemul -msmall-code
@@ -105,40 +105,52 @@ SRC_FILES := rott/byteordr.c \
 			rott/dosutil.c \
 			rott/watcom.c
 
-all: ROTT.exe | Makefile
-
-OBJ_FILES :=
+all: ROTT.exe ROTT060.exe | Makefile
 
 define make_dependency
+#  $$(info ${1} ${2} ${3})
   ${1} : ${2} | Makefile
-  OBJ_FILES += ${1}
+  ${3} += ${1}
 endef
-# build dependencies between the .c and .o files
-$(foreach in,${SRC_FILES},$(eval $(call make_dependency,$(patsubst %.c,obj/%.o,${in}),${in})))
 
-#$(info $(OBJ_FILES))
-$(shell mkdir -p obj/rott/audiolib)
+# build dependencies between the .c and .o files
+define make_objfiles
+#    $$(info ${1} ${2})
+    $$(shell mkdir -p ${2}/rott)
+    $$(foreach in,$(SRC_FILES),$$(eval $$(call make_dependency,$$(patsubst %.c,${2}/%.o,$${in}),$${in}, ${1})))
+endef
+
+OBJ_FILES :=
+$(eval $(call make_objfiles,OBJ_FILES,obj/030))
+
+OBJ_FILES_060 :=
+
+$(eval $(call make_objfiles,OBJ_FILES_060,obj/060))
+
+ADDITIONAL_OBJS := rott/c2p1x1_6_c5_bm_040.o \
+                   rott/c2p1x1_6_c5_bm.o \
+                   rott/c2p1x1_8_c5_bm_040.o \
+                   rott/c2p1x1_8_c5_bm.o \
+                   rott/indivision.o \
+                   rott/m_mmu.o
 
 clean :
 	rm -f ROTT.exe
 	rm -rf obj
 
 ROTT.exe: $(OBJ_FILES) | Makefile
-	$(CC) -v $(CFLAGS) $(LDFLAGS) -Wl,-Map=ROTT.map -o $@  \
-		rott/c2p1x1_6_c5_bm_040.o \
-		rott/c2p1x1_6_c5_bm.o \
-		rott/c2p1x1_8_c5_bm_040.o  \
-		rott/c2p1x1_8_c5_bm.o  \
-		rott/indivision.o \
-		rott/m_mmu.o \
-		$^
+	$(CC) $(CFLAGS) $(LDFLAGS) -Wl,-Map=ROTT.map -o $@  $^ $(ADDITIONAL_OBJS)
+	$(STRIP) --strip-debug --strip-unneeded --strip-all $@ -o $(BINDIR)/$@
+
+ROTT060.exe: $(OBJ_FILES_060) | Makefile
+	$(CC) $(CFLAGS) $(LDFLAGS) -Wl,-Map=ROTT060.map -o $@  $^ $(ADDITIONAL_OBJS)
 	$(STRIP) --strip-debug --strip-unneeded --strip-all $@ -o $(BINDIR)/$@
 
 $(OBJ_FILES): % : | Makefile
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -m68030 -c $< -o $@
+
+$(OBJ_FILES_060): % : | Makefile
+	$(CC) $(CFLAGS) -m68060 -c $< -o $@
 
 profile:
 	m68k-amigaos-gprof --brief ./ROTT.exe $(BINDIR)/gmon.out | gprof2dot.py | dot -s -Tpdf -oROTT.pdf
-
-
-
