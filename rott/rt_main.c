@@ -189,29 +189,28 @@ int __stdargs main(int argc, char const *argv[])
     char *macwd;
 
     _argc = argc;
-    _argv = argv;
+
+    int maxNumToolTypes =  sizeof(flags) / sizeof(flags[0]);
+    _argv = malloc(sizeof(char *) * (maxNumToolTypes + 1));
+    memcpy(_argv, argv, sizeof(char*) * _argc);
 
     /* parse icon tooltypes and convert them to argc/argv format */
-
     if (argc <= 1) {
         if (argc == 0) {
             argmsg = (struct WBStartup *)argv;
             wb_arg = argmsg->sm_ArgList;
-
             char *copy = strdup(wb_arg->wa_Name);
             if (copy == NULL)
                 Error("malloc(%d) failed", strlen(wb_arg->wa_Name) + 1);
-
             _argv[_argc++] = copy;
         }
         if ((obj = GetDiskObject((STRPTR)_argv[0])) != NULL) {
             toolarray = obj->do_ToolTypes;
-            for (i = 0; i < sizeof(flags) / sizeof(flags[0]); i++) {
+            for (i = 0; i < maxNumToolTypes; i++) {
                 if (FindToolType(toolarray, (STRPTR)flags[i]) != NULL) {
                     _argv[_argc++] = flags[i];
                 }
             }
-
             FreeDiskObject(obj);
         }
 
@@ -223,8 +222,8 @@ int __stdargs main(int argc, char const *argv[])
         }
     } else {
         printf("\nOverriding Icon tooltypes command line with :\n\n    ");
-        for (i = 0; i < argc; i++)
-            printf(" %s", argv[i]);
+        for (i = 0; i < _argc; i++)
+            printf(" %s", _argv[i]);
         printf("\n\n");
     }
 
@@ -1725,6 +1724,9 @@ void QuitGame(void)
     ShutDown();
 #endif
     ShutDown();
+
+    free(_argv);
+
     exit(0);
 }
 
