@@ -248,9 +248,8 @@ long filelength(int handle);
 //
 //***************************************************************************
 
-#define MaxJoys 0
+#define MaxJoys 2
 #define MaxKbds 2
-#define MaxJoys 0
 #define NumCodes 128
 
 // Key definitions

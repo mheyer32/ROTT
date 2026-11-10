@@ -38,6 +38,9 @@ fixed FixedScale(fixed orig, fixed factor, fixed divisor)
 typedef int fixed_t;
 
 #ifndef C_FIXED_MATH
+fixed (*FixedMul)(fixed a, fixed b);
+fixed (*FixedDiv2)(fixed a, fixed b);
+
 fixed_t FixedMul040(fixed_t eins, fixed_t zwei)
 {
     __asm __volatile(

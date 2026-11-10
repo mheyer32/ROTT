@@ -1116,8 +1116,6 @@ void PreCache(void)
         if (BATTLEMODE) {
             int width, height;
             char buf[30];  // byte * shape;
-            double WHratio = 16200 / 200;
-            WHratio = WHratio / 100;
             ///	iGLOBAL_SCREENWIDTH = 640;
             //	iGLOBAL_SCREENHEIGHT = 480;
             DisableScreenStretch();
@@ -1130,7 +1128,7 @@ void PreCache(void)
             strcpy(buf, "Press Any Key");
             US_MeasureStr(&width, &height, "%s", &buf[0]);
             PrintX = (iGLOBAL_SCREENWIDTH - (width)) / 2;
-            PrintY = WHratio * iGLOBAL_SCREENHEIGHT;  // 162;
+            PrintY = (81 * iGLOBAL_SCREENHEIGHT) / 100;  // 162;
             // VWB_TBar (PrintX-2, PrintY-2, width+4, height+4);
             US_BufPrint(&buf[0]);
 

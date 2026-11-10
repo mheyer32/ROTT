@@ -17,6 +17,7 @@ PHXASS := vasmm68k_mot
 PREFIX = $(shell ./getprefix.sh "$(CC)")
 
 #-Wstrict-prototypes
+CFLAGS += -std=gnu99
 CFLAGS += -mregparm=4 -noixemul
 CFLAGS += -Werror -Wimplicit -Wdouble-promotion -fstrict-aliasing
 

@@ -39,8 +39,8 @@ static inline fixed FixedDiv2(fixed a, fixed b)
 }
 
 #else
-fixed (*FixedMul)(fixed a, fixed b);
-fixed (*FixedDiv2)(fixed a, fixed b);
+extern fixed (*FixedMul)(fixed a, fixed b);
+extern fixed (*FixedDiv2)(fixed a, fixed b);
 fixed FixedMul040(fixed eins, fixed zwei);
 fixed FixedDiv040(fixed eins, fixed zwei);
 fixed FixedMul060(fixed eins, fixed zwei);

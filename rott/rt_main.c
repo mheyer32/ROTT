@@ -155,7 +155,7 @@ void CheckRemoteRidicule(int scancode);
 void SetRottScreenRes(int Width, int Height);
 
 #ifndef DOS
-extern void crash_print(int);
+extern __stdargs void crash_print(int);
 extern int setup_homedir(void);
 #endif
 

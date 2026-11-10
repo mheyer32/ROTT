@@ -207,7 +207,7 @@ void print_stack(int level)
 
 #endif
 
-void crash_print(int sig)
+__stdargs void crash_print(int sig)
 {
     printf("OH NO OH NO ROTT CRASHED!\n");
     printf("Here is where:\n");
